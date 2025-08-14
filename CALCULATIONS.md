@@ -54,7 +54,6 @@ The dashboard is configured to track these expense categories from the "Expenses
 - **Insurance** - Business insurance premiums
 - **Sales Tax & CPA** - Tax and accounting services
 - **Payroll Other taxes** - Additional payroll taxes
-- **Labor Costs** - Direct labor expenses (excluding salaries)
 - **Rent** - Property and equipment rental costs
 - **Utilities** - Electricity, water, gas, internet, etc.
 - **Misc** - Miscellaneous expenses
@@ -94,6 +93,6 @@ The dashboard is configured to track these expense categories from the "Expenses
 - **Net Income**: Revenue-based calculation (includes tax)
 - **Net Profit**: True profitability after all costs
 - **Expenses**: Includes all operational expenses and salaries
-- **Categories**: 16 primary expense categories + salaries
+- **Categories**: 15 primary expense categories + salaries
 - **Sorting**: Expenses are sorted by amount (highest to lowest)
 - **Validation**: Dashboard monitors for missing expense categories

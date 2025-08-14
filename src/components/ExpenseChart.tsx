@@ -15,7 +15,6 @@ const EXPECTED_EXPENSE_CATEGORIES = [
   'Insurance',
   'Sales Tax & CPA',
   'Payroll Other taxes',
-  'Labor Costs',
   'Rent',
   'Utilities',
   'Misc',
