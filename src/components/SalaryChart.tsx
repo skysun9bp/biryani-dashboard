@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { fetchSheetData } from "../utils/fetchSheet";
+import { DateFilter } from "./DateFilter";
 
 const COLORS = ['#8B5CF6', '#3B82F6', '#10B981', '#F59E0B', '#EF4444'];
 
@@ -11,20 +12,22 @@ export function SalaryChart() {
   const [highestPaid, setHighestPaid] = useState("");
   const [averageSalary, setAverageSalary] = useState(0);
   const [selectedMonth, setSelectedMonth] = useState<'current' | 'previous'>('current');
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
+  const [selectedMonthFilter, setSelectedMonthFilter] = useState(new Date().toLocaleString('default', { month: 'short' }));
 
   useEffect(() => {
     async function loadData() {
       const salaryData = await fetchSheetData("Salaries");
       
-      // Get current month and year
-      const currentDate = new Date();
+      // Get target month and year based on selectedMonth (current/previous) and selectedYear
       let targetMonth, targetYear;
       
       if (selectedMonth === 'current') {
-        targetMonth = currentDate.toLocaleString('default', { month: 'short' });
-        targetYear = currentDate.getFullYear().toString();
+        targetMonth = selectedMonthFilter;
+        targetYear = selectedYear;
       } else {
-        // Previous month
+        // Previous month logic - but we'll use the selected year and month filter
+        const currentDate = new Date();
         const previousMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
         targetMonth = previousMonth.toLocaleString('default', { month: 'short' });
         targetYear = previousMonth.getFullYear().toString();
@@ -71,18 +74,7 @@ export function SalaryChart() {
       setLoading(false);
     }
     loadData();
-  }, [selectedMonth]);
-
-  if (loading) {
-    return (
-      <div className="h-80 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
-          <span className="text-sm text-gray-500">Loading salary data...</span>
-        </div>
-      </div>
-    );
-  }
+  }, [selectedMonth, selectedYear, selectedMonthFilter]);
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
@@ -101,9 +93,20 @@ export function SalaryChart() {
     return null;
   };
 
+  if (loading) {
+    return (
+      <div className="h-80 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
+          <span className="text-sm text-gray-500">Loading salary data...</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Header with Filters */}
       <div className="flex justify-between items-start">
         <div>
           <h3 className="text-2xl font-bold text-gray-900">
@@ -141,6 +144,20 @@ export function SalaryChart() {
         </div>
       </div>
 
+      {/* Date Filters */}
+      <div className="flex justify-between items-center">
+        <DateFilter
+          selectedYear={selectedYear}
+          selectedMonth={selectedMonthFilter}
+          onYearChange={setSelectedYear}
+          onMonthChange={setSelectedMonthFilter}
+          className="flex-1"
+        />
+        <div className="text-sm text-gray-500">
+          {selectedMonthFilter ? `${selectedMonthFilter} ${selectedYear}` : `${selectedYear} (All Months)`}
+        </div>
+      </div>
+
       {/* Stats Cards */}
       <div className="grid grid-cols-3 gap-4">
         <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-xl border border-purple-200">
@@ -149,7 +166,9 @@ export function SalaryChart() {
             <span className="text-sm font-medium text-purple-800">Month Payroll</span>
           </div>
           <div className="text-xl font-bold text-purple-900">${totalSalaries.toLocaleString()}</div>
-          <div className="text-xs text-purple-700 mt-1">Current month total</div>
+          <div className="text-xs text-purple-700 mt-1">
+            {selectedMonthFilter ? `${selectedMonthFilter} ${selectedYear}` : `${selectedYear} total`}
+          </div>
         </div>
         
         <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-xl border border-blue-200">
@@ -223,12 +242,12 @@ export function SalaryChart() {
         </div>
       </div>
 
-      {/* Employee List */}
-      <div className="bg-white border border-gray-200 rounded-xl p-4">
+      {/* Employee Details */}
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
         <h4 className="text-lg font-semibold text-gray-900 mb-4">Employee Details</h4>
         <div className="space-y-3">
           {data.map((item, index) => (
-            <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
               <div className="flex items-center space-x-3">
                 <div 
                   className="w-4 h-4 rounded-full" 
@@ -236,11 +255,11 @@ export function SalaryChart() {
                 ></div>
                 <div>
                   <p className="font-medium text-gray-900">{item.employee}</p>
-                  <p className="text-sm text-gray-500">{item.percentage}% of payroll</p>
+                  <p className="text-sm text-gray-600">{item.percentage}% of payroll</p>
                 </div>
               </div>
               <div className="text-right">
-                <p className="font-bold text-purple-600">${item.salary.toLocaleString()}</p>
+                <p className="font-bold text-blue-600">${item.salary.toLocaleString()}</p>
                 <p className="text-xs text-gray-500">Monthly</p>
               </div>
             </div>
@@ -248,13 +267,13 @@ export function SalaryChart() {
         </div>
       </div>
 
-      {/* Insights */}
-      <div className="bg-purple-50 border border-purple-200 rounded-xl p-4">
+      {/* Salary Insights */}
+      <div className="bg-blue-50 rounded-xl p-6">
         <div className="flex items-start space-x-3">
-          <span className="text-purple-600 text-xl">💡</span>
+          <span className="text-blue-600 text-xl">💡</span>
           <div>
-            <h4 className="font-semibold text-purple-900 mb-1">Salary Insights</h4>
-            <p className="text-sm text-purple-800">
+            <h4 className="font-semibold text-blue-900 mb-1">Salary Insights</h4>
+            <p className="text-sm text-blue-800">
               {highestPaid} is the highest-paid employee at ${data.find(item => item.employee === highestPaid)?.salary.toLocaleString()}. 
               The average salary across all employees is ${averageSalary.toLocaleString()}. 
               Consider performance-based incentives to motivate staff.

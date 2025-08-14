@@ -7,31 +7,34 @@ import { RevenueChart } from "./components/RevenueChart";
 import { ExpenseChart } from "./components/ExpenseChart";
 import { SalaryChart } from "./components/SalaryChart";
 import { ExportButton } from "./components/ExportButton";
+import { DateFilter } from "./components/DateFilter";
 import { fetchSheetData } from "./utils/fetchSheet";
 
 function RevenueTable() {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalRevenue, setTotalRevenue] = useState(0);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
+  const [selectedMonth, setSelectedMonth] = useState(new Date().toLocaleString('default', { month: 'short' }));
 
   useEffect(() => {
     async function loadData() {
       const revenueData = await fetchSheetData("Net Sale");
       
-      // Get current month and year
-      const currentDate = new Date();
-      const currentMonth = currentDate.toLocaleString('default', { month: 'short' });
-      const currentYear = currentDate.getFullYear().toString();
-
-      // Filter data for current month
-      const currentMonthData = revenueData.filter(row => {
-        const rowMonth = row["Month"] || "";
+      // Filter data based on selected year and month
+      let filteredData = revenueData.filter(row => {
         const rowYear = row["Year"] || "";
-        return rowMonth === currentMonth && rowYear === currentYear;
+        const rowMonth = row["Month"] || "";
+        
+        if (selectedMonth) {
+          return rowYear === selectedYear && rowMonth === selectedMonth;
+        } else {
+          return rowYear === selectedYear;
+        }
       });
 
       // Sort by Column 1 date (most recent first) and take the latest 5 entries
-      const sortedData = currentMonthData
+      const sortedData = filteredData
         .sort((a, b) => {
           const dateA = new Date(a["Column 1"] || "1900-01-01");
           const dateB = new Date(b["Column 1"] || "1900-01-01");
@@ -39,8 +42,8 @@ function RevenueTable() {
         })
         .slice(0, 5);
 
-      // Calculate total revenue for the month
-      const totalRev = currentMonthData.reduce((sum, item) => {
+      // Calculate total revenue for the filtered period
+      const totalRev = filteredData.reduce((sum, item) => {
         const cashInReport = parseFloat(item["Cash in Report"] || "0");
         const card = parseFloat(item["Card"] || "0");
         const dd = parseFloat(item["DD"] || "0");
@@ -63,7 +66,7 @@ function RevenueTable() {
       setLoading(false);
     }
     loadData();
-  }, []);
+  }, [selectedYear, selectedMonth]);
 
   if (loading) {
     return (
@@ -84,39 +87,60 @@ function RevenueTable() {
     <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold text-gray-900">Recent Revenues</h3>
-        <div className="text-sm text-gray-500">Month Total: ${totalRevenue.toLocaleString()}</div>
+        <div className="text-sm text-gray-500">Total: ${totalRevenue.toLocaleString()}</div>
       </div>
+      
+      {/* Date Filters */}
+      <div className="mb-4">
+        <DateFilter
+          selectedYear={selectedYear}
+          selectedMonth={selectedMonth}
+          onYearChange={setSelectedYear}
+          onMonthChange={setSelectedMonth}
+          className="mb-2"
+        />
+        <div className="text-xs text-gray-500">
+          {selectedMonth ? `${selectedMonth} ${selectedYear}` : `${selectedYear} (All Months)`}
+        </div>
+      </div>
+      
       <div className="space-y-3">
-        {data.map((item, index) => {
-          const cashInReport = parseFloat(item["Cash in Report"] || "0");
-          const card = parseFloat(item["Card"] || "0");
-          const dd = parseFloat(item["DD"] || "0");
-          const ue = parseFloat(item["UE"] || "0");
-          const gh = parseFloat(item["GH"] || "0");
-          const cn = parseFloat(item["CN"] || "0");
-          const catering = parseFloat(item["Catering"] || "0");
-          const otherCash = parseFloat(item["Other Cash"] || "0");
-          const foodja = parseFloat(item["Foodja"] || "0");
-          const zelle = parseFloat(item["Zelle"] || "0");
-          const ezCater = parseFloat(item["Ez Cater"] || "0");
-          const relish = parseFloat(item["Relish"] || "0");
-          const waiterCom = parseFloat(item["waiter.com"] || "0");
-          
-          const total = cashInReport + card + dd + ue + gh + cn + catering + otherCash + foodja + zelle + ezCater + relish + waiterCom;
-          
-          return (
-            <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-              <div>
-                <p className="font-medium text-gray-900">{item["Column 1"] || "Unknown Date"}</p>
-                <p className="text-sm text-gray-600">{item["Month"] || ""} {item["Year"] || ""}</p>
+        {data.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-gray-500">No revenue data found for {selectedMonth ? `${selectedMonth} ${selectedYear}` : `${selectedYear}`}</p>
+          </div>
+        ) : (
+          data.map((item, index) => {
+            const cashInReport = parseFloat(item["Cash in Report"] || "0");
+            const card = parseFloat(item["Card"] || "0");
+            const dd = parseFloat(item["DD"] || "0");
+            const ue = parseFloat(item["UE"] || "0");
+            const gh = parseFloat(item["GH"] || "0");
+            const cn = parseFloat(item["CN"] || "0");
+            const catering = parseFloat(item["Catering"] || "0");
+            const otherCash = parseFloat(item["Other Cash"] || "0");
+            const foodja = parseFloat(item["Foodja"] || "0");
+            const zelle = parseFloat(item["Zelle"] || "0");
+            const ezCater = parseFloat(item["Ez Cater"] || "0");
+            const relish = parseFloat(item["Relish"] || "0");
+            const waiterCom = parseFloat(item["waiter.com"] || "0");
+            
+            const total = cashInReport + card + dd + ue + gh + cn + catering + otherCash + foodja + zelle + ezCater + relish + waiterCom;
+            
+            return (
+              <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                <div>
+                  <p className="font-medium text-gray-900">{item["Column 1"] || "Unknown Date"}</p>
+                  <p className="text-sm text-gray-600">{item["Month"] || ""} {item["Year"] || ""}</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-bold text-green-600">${total.toLocaleString()}</p>
+                  <p className="text-xs text-gray-500">Total Revenue</p>
+                </div>
               </div>
-              <div className="text-right">
-                <p className="font-bold text-green-600">${total.toLocaleString()}</p>
-                <p className="text-xs text-gray-500">Total Revenue</p>
-              </div>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
       </div>
     </div>
   );
@@ -126,25 +150,27 @@ function ExpenseTable() {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalExpenses, setTotalExpenses] = useState(0);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
+  const [selectedMonth, setSelectedMonth] = useState(new Date().toLocaleString('default', { month: 'short' }));
 
   useEffect(() => {
     async function loadData() {
       const expenseData = await fetchSheetData("Expenses");
       
-      // Get current month and year
-      const currentDate = new Date();
-      const currentMonth = currentDate.toLocaleString('default', { month: 'short' });
-      const currentYear = currentDate.getFullYear().toString();
-
-      // Filter data for current month
-      const currentMonthData = expenseData.filter(row => {
-        const rowMonth = row["Month"] || "";
+      // Filter data based on selected year and month
+      let filteredData = expenseData.filter(row => {
         const rowYear = row["Year"] || "";
-        return rowMonth === currentMonth && rowYear === currentYear;
+        const rowMonth = row["Month"] || "";
+        
+        if (selectedMonth) {
+          return rowYear === selectedYear && rowMonth === selectedMonth;
+        } else {
+          return rowYear === selectedYear;
+        }
       });
 
       // Sort by date (most recent first) and take the latest 5 entries
-      const sortedData = currentMonthData
+      const sortedData = filteredData
         .sort((a, b) => {
           const dateA = new Date(a["Date"] || "1900-01-01");
           const dateB = new Date(b["Date"] || "1900-01-01");
@@ -152,8 +178,8 @@ function ExpenseTable() {
         })
         .slice(0, 5);
 
-      // Calculate total expenses for the month
-      const totalExp = currentMonthData.reduce((sum, item) => {
+      // Calculate total expenses for the filtered period
+      const totalExp = filteredData.reduce((sum, item) => {
         return sum + parseFloat(item["Amount"] || "0");
       }, 0);
 
@@ -162,7 +188,7 @@ function ExpenseTable() {
       setLoading(false);
     }
     loadData();
-  }, []);
+  }, [selectedYear, selectedMonth]);
 
   if (loading) {
     return (
@@ -183,21 +209,42 @@ function ExpenseTable() {
     <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold text-gray-900">Top Expenses</h3>
-        <div className="text-sm text-gray-500">Month Total: ${totalExpenses.toLocaleString()}</div>
+        <div className="text-sm text-gray-500">Total: ${totalExpenses.toLocaleString()}</div>
       </div>
+      
+      {/* Date Filters */}
+      <div className="mb-4">
+        <DateFilter
+          selectedYear={selectedYear}
+          selectedMonth={selectedMonth}
+          onYearChange={setSelectedYear}
+          onMonthChange={setSelectedMonth}
+          className="mb-2"
+        />
+        <div className="text-xs text-gray-500">
+          {selectedMonth ? `${selectedMonth} ${selectedYear}` : `${selectedYear} (All Months)`}
+        </div>
+      </div>
+      
       <div className="space-y-3">
-        {data.map((item, index) => (
-          <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-            <div>
-              <p className="font-medium text-gray-900">{item["Item (Vendor)"] || "Unknown Vendor"}</p>
-              <p className="text-sm text-gray-600">{item["Expense Type"] || ""} • {item["Date"] || ""}</p>
-            </div>
-            <div className="text-right">
-              <p className="font-bold text-red-600">${parseFloat(item["Amount"] || "0").toLocaleString()}</p>
-              <p className="text-xs text-gray-500">{item["Cost Type"] || ""}</p>
-            </div>
+        {data.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-gray-500">No expense data found for {selectedMonth ? `${selectedMonth} ${selectedYear}` : `${selectedYear}`}</p>
           </div>
-        ))}
+        ) : (
+          data.map((item, index) => (
+            <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+              <div>
+                <p className="font-medium text-gray-900">{item["Item (Vendor)"] || "Unknown Vendor"}</p>
+                <p className="text-sm text-gray-600">{item["Expense Type"] || ""} • {item["Date"] || ""}</p>
+              </div>
+              <div className="text-right">
+                <p className="font-bold text-red-600">${parseFloat(item["Amount"] || "0").toLocaleString()}</p>
+                <p className="text-xs text-gray-500">{item["Cost Type"] || ""}</p>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
@@ -208,20 +255,22 @@ function SalaryTable() {
   const [loading, setLoading] = useState(true);
   const [totalSalaries, setTotalSalaries] = useState(0);
   const [selectedMonth, setSelectedMonth] = useState<'current' | 'previous'>('current');
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
+  const [selectedMonthFilter, setSelectedMonthFilter] = useState(new Date().toLocaleString('default', { month: 'short' }));
 
   useEffect(() => {
     async function loadData() {
       const salaryData = await fetchSheetData("Salaries");
       
-      // Get current month and year
-      const currentDate = new Date();
+      // Get target month and year based on selectedMonth (current/previous) and selectedYear
       let targetMonth, targetYear;
       
       if (selectedMonth === 'current') {
-        targetMonth = currentDate.toLocaleString('default', { month: 'short' });
-        targetYear = currentDate.getFullYear().toString();
+        targetMonth = selectedMonthFilter;
+        targetYear = selectedYear;
       } else {
-        // Previous month
+        // Previous month logic
+        const currentDate = new Date();
         const previousMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
         targetMonth = previousMonth.toLocaleString('default', { month: 'short' });
         targetYear = previousMonth.getFullYear().toString();
@@ -253,7 +302,7 @@ function SalaryTable() {
       setLoading(false);
     }
     loadData();
-  }, [selectedMonth]);
+  }, [selectedMonth, selectedYear, selectedMonthFilter]);
 
   if (loading) {
     return (
@@ -275,7 +324,7 @@ function SalaryTable() {
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold text-gray-900">Employee Salaries</h3>
         <div className="flex items-center space-x-4">
-          <div className="text-sm text-gray-500">Month Total: ${totalSalaries.toLocaleString()}</div>
+          <div className="text-sm text-gray-500">Total: ${totalSalaries.toLocaleString()}</div>
           <div className="flex bg-gray-200 rounded-lg p-1">
             <button
               onClick={() => setSelectedMonth('current')}
@@ -300,6 +349,21 @@ function SalaryTable() {
           </div>
         </div>
       </div>
+      
+      {/* Date Filters */}
+      <div className="mb-4">
+        <DateFilter
+          selectedYear={selectedYear}
+          selectedMonth={selectedMonthFilter}
+          onYearChange={setSelectedYear}
+          onMonthChange={setSelectedMonthFilter}
+          className="mb-2"
+        />
+        <div className="text-xs text-gray-500">
+          {selectedMonthFilter ? `${selectedMonthFilter} ${selectedYear}` : `${selectedYear} (All Months)`}
+        </div>
+      </div>
+      
       <div className="space-y-3">
         {data.length === 0 ? (
           <div className="text-center py-8">
