@@ -2,6 +2,7 @@
 // File: /src/components/SummaryCard.tsx
 import React, { useEffect, useState } from "react";
 import { fetchSheetData } from "../utils/fetchSheet";
+import { DateFilter } from "./DateFilter";
 
 interface SummaryCardProps {}
 
@@ -14,6 +15,8 @@ export function SummaryCard({}: SummaryCardProps) {
   const [lastUpdated, setLastUpdated] = useState("");
   const [comparisonMode, setComparisonMode] = useState<'current' | 'yoy' | 'qoq'>('current');
   const [comparisonData, setComparisonData] = useState<any>(null);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
+  const [selectedMonth, setSelectedMonth] = useState(new Date().toLocaleString('default', { month: 'short' }));
 
   useEffect(() => {
     async function loadData() {
@@ -37,59 +40,59 @@ export function SummaryCard({}: SummaryCardProps) {
         filteredRevenueData = revenueData.filter(row => {
           const rowMonth = row["Month"] || "";
           const rowYear = row["Year"] || "";
-          return rowMonth === currentMonth && rowYear === currentYear;
+          return rowMonth === selectedMonth && rowYear === selectedYear;
         });
 
         filteredExpenseData = expenseData.filter(row => {
           const rowMonth = row["Month"] || "";
           const rowYear = row["Year"] || "";
-          return rowMonth === currentMonth && rowYear === currentYear;
+          return rowMonth === selectedMonth && rowYear === selectedYear;
         });
 
         filteredSalaryData = salaryData.filter(row => {
           const rowMonth = row["Month"] || "";
           const rowYear = row["Year"] || "";
-          return rowMonth === currentMonth && rowYear === currentYear;
+          return rowMonth === selectedMonth && rowYear === selectedYear;
         });
       } else if (comparisonMode === 'yoy') {
         // Current month vs same month last year
-        const lastYear = (parseInt(currentYear) - 1).toString();
+        const lastYear = (parseInt(selectedYear) - 1).toString();
         
         filteredRevenueData = revenueData.filter(row => {
           const rowMonth = row["Month"] || "";
           const rowYear = row["Year"] || "";
-          return rowMonth === currentMonth && rowYear === currentYear;
+          return rowMonth === selectedMonth && rowYear === selectedYear;
         });
 
         filteredExpenseData = expenseData.filter(row => {
           const rowMonth = row["Month"] || "";
           const rowYear = row["Year"] || "";
-          return rowMonth === currentMonth && rowYear === currentYear;
+          return rowMonth === selectedMonth && rowYear === selectedYear;
         });
 
         filteredSalaryData = salaryData.filter(row => {
           const rowMonth = row["Month"] || "";
           const rowYear = row["Year"] || "";
-          return rowMonth === currentMonth && rowYear === currentYear;
+          return rowMonth === selectedMonth && rowYear === selectedYear;
         });
 
         // Comparison data (same month last year)
         const comparisonRevenueData = revenueData.filter(row => {
           const rowMonth = row["Month"] || "";
           const rowYear = row["Year"] || "";
-          return rowMonth === currentMonth && rowYear === lastYear;
+          return rowMonth === selectedMonth && rowYear === lastYear;
         });
 
         const comparisonExpenseData = expenseData.filter(row => {
           const rowMonth = row["Month"] || "";
           const rowYear = row["Year"] || "";
-          return rowMonth === currentMonth && rowYear === lastYear;
+          return rowMonth === selectedMonth && rowYear === lastYear;
         });
 
         const comparisonSalaryData = salaryData.filter(row => {
           const rowMonth = row["Month"] || "";
           const rowYear = row["Year"] || "";
-          return rowMonth === currentMonth && rowYear === lastYear;
+          return rowMonth === selectedMonth && rowYear === lastYear;
         });
 
         comparisonPeriodData = {
@@ -100,11 +103,11 @@ export function SummaryCard({}: SummaryCardProps) {
       } else if (comparisonMode === 'qoq') {
         // Current quarter vs previous quarter
         const previousQuarter = currentQuarter === 1 ? 4 : currentQuarter - 1;
-        const previousQuarterYear = currentQuarter === 1 ? (parseInt(currentYear) - 1).toString() : currentYear;
+        const previousQuarterYear = currentQuarter === 1 ? (parseInt(selectedYear) - 1).toString() : selectedYear;
         
         filteredRevenueData = revenueData.filter(row => {
           const rowYear = row["Year"] || "";
-          if (rowYear !== currentYear) return false;
+          if (rowYear !== selectedYear) return false;
           const rowMonth = row["Month"] || "";
           const monthNum = new Date(`2024 ${rowMonth} 1`).getMonth() + 1;
           const rowQuarter = Math.ceil(monthNum / 3);
@@ -113,7 +116,7 @@ export function SummaryCard({}: SummaryCardProps) {
 
         filteredExpenseData = expenseData.filter(row => {
           const rowYear = row["Year"] || "";
-          if (rowYear !== currentYear) return false;
+          if (rowYear !== selectedYear) return false;
           const rowMonth = row["Month"] || "";
           const monthNum = new Date(`2024 ${rowMonth} 1`).getMonth() + 1;
           const rowQuarter = Math.ceil(monthNum / 3);
@@ -122,7 +125,7 @@ export function SummaryCard({}: SummaryCardProps) {
 
         filteredSalaryData = salaryData.filter(row => {
           const rowYear = row["Year"] || "";
-          if (rowYear !== currentYear) return false;
+          if (rowYear !== selectedYear) return false;
           const rowMonth = row["Month"] || "";
           const monthNum = new Date(`2024 ${rowMonth} 1`).getMonth() + 1;
           const rowQuarter = Math.ceil(monthNum / 3);
@@ -179,7 +182,7 @@ export function SummaryCard({}: SummaryCardProps) {
     }
 
     loadData();
-  }, [comparisonMode]);
+  }, [comparisonMode, selectedYear, selectedMonth]);
 
   const calculateRevenue = (data: any[]) => {
     return data.reduce((sum, item) => {
@@ -248,6 +251,20 @@ export function SummaryCard({}: SummaryCardProps) {
 
   return (
     <div className="space-y-6">
+      {/* Date Filters */}
+      <div className="flex justify-between items-center">
+        <DateFilter
+          selectedYear={selectedYear}
+          selectedMonth={selectedMonth}
+          onYearChange={setSelectedYear}
+          onMonthChange={setSelectedMonth}
+          className="flex-1"
+        />
+        <div className="text-sm text-gray-500">
+          {selectedMonth ? `${selectedMonth} ${selectedYear}` : `${selectedYear} (All Months)`}
+        </div>
+      </div>
+
       {/* Comparison Mode Toggle */}
       <div className="flex items-center space-x-4">
         <span className="text-sm font-medium text-gray-700">Compare:</span>
