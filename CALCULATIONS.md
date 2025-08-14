@@ -42,6 +42,44 @@ Net Profit = Total Revenue - Total Expenses - Total Salaries
 - **Total Expenses** = Sum of all amounts from the "Expenses" sheet
 - **Total Salaries** = Sum of all amounts from the "Salaries" sheet
 
+## Expected Expense Categories
+
+The dashboard is configured to track these expense categories from the "Expenses" sheet:
+
+### Primary Expense Categories:
+- **Maintenance** - Building and equipment maintenance costs
+- **Marketing** - Advertising and promotional expenses
+- **Automobile** - Vehicle-related expenses
+- **Equipment** - Kitchen and business equipment costs
+- **Insurance** - Business insurance premiums
+- **Sales Tax & CPA** - Tax and accounting services
+- **Payroll Other taxes** - Additional payroll taxes
+- **Labor Costs** - Direct labor expenses (excluding salaries)
+- **Rent** - Property and equipment rental costs
+- **Utilities** - Electricity, water, gas, internet, etc.
+- **Misc** - Miscellaneous expenses
+- **Bank Fees** - Banking and transaction fees
+- **LLC Fees** - Business registration and compliance fees
+- **Travel** - Business travel expenses
+- **Food costs** - Raw materials and food supplies
+
+### Additional Categories:
+- **Salaries** - Employee salaries (from separate "Salaries" sheet)
+
+## Expense Analytics Features
+
+### Data Processing:
+- **Sorting**: Expenses are sorted by amount (highest to lowest)
+- **Categorization**: Grouped by "Cost Type" from the Expenses sheet
+- **Salary Inclusion**: Salaries are added as a separate category
+- **Validation**: Dashboard checks for missing expected categories
+
+### Visual Features:
+- **Pie Chart**: Shows expense breakdown by category
+- **Bar Chart**: Compares expense amounts across categories
+- **Detailed List**: Clickable expense items for drill-down
+- **Missing Categories Warning**: Alerts when expected categories are not found
+
 ## Key Differences
 
 | Aspect | Net Income | Net Profit |
@@ -51,17 +89,11 @@ Net Profit = Total Revenue - Total Expenses - Total Salaries
 | **Calculation** | Direct from revenue columns | Revenue minus all costs |
 | **Use Case** | Revenue analysis | Overall profitability |
 
-## Expense Analytics Section
-
-The Expense Analytics section now includes:
-- All expenses from the "Expenses" sheet
-- Salaries as a separate category
-- Sorted by descending amount
-- Shows percentage breakdown of total expenses
-
 ## Summary
 
 - **Net Income**: Revenue-based calculation (includes tax)
 - **Net Profit**: True profitability after all costs
-- **Expenses**: Now includes both operational expenses and salaries
+- **Expenses**: Includes all operational expenses and salaries
+- **Categories**: 16 primary expense categories + salaries
 - **Sorting**: Expenses are sorted by amount (highest to lowest)
+- **Validation**: Dashboard monitors for missing expense categories

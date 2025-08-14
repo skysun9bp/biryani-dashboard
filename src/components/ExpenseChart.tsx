@@ -4,7 +4,27 @@ import { fetchSheetData } from "../utils/fetchSheet";
 import { ExpenseDetails } from "./ExpenseDetails";
 import { DateFilter } from "./DateFilter";
 
-const COLORS = ['#8B5CF6', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#EC4899', '#8B5A2B', '#6B7280', '#059669', '#DC2626'];
+const COLORS = ['#8B5CF6', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#EC4899', '#8B5A2B', '#6B7280', '#059669', '#DC2626', '#7C3AED', '#1D4ED8', '#047857', '#D97706', '#B91C1C'];
+
+// Expected expense categories for validation
+const EXPECTED_EXPENSE_CATEGORIES = [
+  'Maintenance',
+  'Marketing',
+  'Automobile',
+  'Equipment',
+  'Insurance',
+  'Sales Tax & CPA',
+  'Payroll Other taxes',
+  'Labor Costs',
+  'Rent',
+  'Utilities',
+  'Misc',
+  'Bank Fees',
+  'LLC Fees',
+  'Travel',
+  'Food costs',
+  'Salaries' // Added separately from salaries sheet
+];
 
 export function ExpenseChart() {
   const [data, setData] = useState<any[]>([]);
@@ -16,6 +36,7 @@ export function ExpenseChart() {
   const [selectedCostType, setSelectedCostType] = useState<string>("");
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
   const [selectedMonth, setSelectedMonth] = useState(new Date().toLocaleString('default', { month: 'short' }));
+  const [missingCategories, setMissingCategories] = useState<string[]>([]);
 
   useEffect(() => {
     async function loadData() {
@@ -68,6 +89,16 @@ export function ExpenseChart() {
       if (totalSalaries > 0) {
         expenseByCostType["Salaries"] = totalSalaries;
       }
+
+      // Check for missing expected categories
+      const foundCategories = Object.keys(expenseByCostType);
+      const missing = EXPECTED_EXPENSE_CATEGORIES.filter(category => 
+        !foundCategories.some(found => 
+          found.toLowerCase().includes(category.toLowerCase()) ||
+          category.toLowerCase().includes(found.toLowerCase())
+        )
+      );
+      setMissingCategories(missing);
       
       // Convert to array and sort by descending amount
       const chartData = Object.entries(expenseByCostType)
@@ -179,6 +210,26 @@ export function ExpenseChart() {
         </div>
       </div>
 
+      {/* Missing Categories Warning */}
+      {missingCategories.length > 0 && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+          <div className="flex items-center space-x-2 mb-2">
+            <span className="text-yellow-600">⚠️</span>
+            <span className="text-sm font-medium text-yellow-800">Missing Expense Categories</span>
+          </div>
+          <p className="text-sm text-yellow-700 mb-2">
+            The following expected expense categories were not found in the data:
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {missingCategories.map((category, index) => (
+              <span key={index} className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded">
+                {category}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Stats Cards */}
       <div className="grid grid-cols-2 gap-4">
         <div className="bg-gradient-to-r from-red-50 to-red-100 p-4 rounded-xl border border-red-200">
@@ -286,6 +337,24 @@ export function ExpenseChart() {
                 <p className="text-xs text-gray-500">Click for details</p>
               </div>
             </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Expected Categories Info */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="flex items-center space-x-2 mb-2">
+          <span className="text-blue-600">ℹ️</span>
+          <span className="text-sm font-medium text-blue-800">Expected Expense Categories</span>
+        </div>
+        <p className="text-sm text-blue-700 mb-2">
+          The dashboard is configured to track these expense categories:
+        </p>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
+          {EXPECTED_EXPENSE_CATEGORIES.map((category, index) => (
+            <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
+              {category}
+            </span>
           ))}
         </div>
       </div>
