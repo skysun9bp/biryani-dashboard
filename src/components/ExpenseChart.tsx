@@ -20,9 +20,22 @@ export function ExpenseChart() {
   useEffect(() => {
     async function loadData() {
       const expenseData = await fetchSheetData("Expenses");
+      const salaryData = await fetchSheetData("Salaries");
       
-      // Filter data based on selected year and month
-      let filteredData = expenseData.filter(row => {
+      // Filter expense data based on selected year and month
+      let filteredExpenseData = expenseData.filter(row => {
+        const rowYear = row["Year"] || "";
+        const rowMonth = row["Month"] || "";
+        
+        if (selectedMonth) {
+          return rowYear === selectedYear && rowMonth === selectedMonth;
+        } else {
+          return rowYear === selectedYear;
+        }
+      });
+
+      // Filter salary data based on selected year and month
+      let filteredSalaryData = salaryData.filter(row => {
         const rowYear = row["Year"] || "";
         const rowMonth = row["Month"] || "";
         
@@ -36,7 +49,7 @@ export function ExpenseChart() {
       // Group expenses by Cost Type
       const expenseByCostType: { [key: string]: number } = {};
       
-      filteredData.forEach(item => {
+      filteredExpenseData.forEach(item => {
         const costType = item["Cost Type"] || "Unknown";
         const amount = parseFloat(item["Amount"] || "0");
         
@@ -46,12 +59,24 @@ export function ExpenseChart() {
           expenseByCostType[costType] = amount;
         }
       });
+
+      // Add salaries as a separate category
+      const totalSalaries = filteredSalaryData.reduce((sum, item) => {
+        return sum + parseFloat(item["Amount"] || "0");
+      }, 0);
       
-      const chartData = Object.entries(expenseByCostType).map(([costType, amount]) => ({
-        costType: costType,
-        amount: amount,
-        percentage: 0,
-      }));
+      if (totalSalaries > 0) {
+        expenseByCostType["Salaries"] = totalSalaries;
+      }
+      
+      // Convert to array and sort by descending amount
+      const chartData = Object.entries(expenseByCostType)
+        .map(([costType, amount]) => ({
+          costType: costType,
+          amount: amount,
+          percentage: 0,
+        }))
+        .sort((a, b) => b.amount - a.amount); // Sort by descending amount
       
       const total = chartData.reduce((sum, item) => sum + item.amount, 0);
       const updatedData = chartData.map(item => ({
@@ -132,7 +157,7 @@ export function ExpenseChart() {
       <div className="flex justify-between items-start">
         <div>
           <h3 className="text-2xl font-bold text-gray-900">Expense Analytics</h3>
-          <p className="text-gray-600 mt-1">Expense breakdown and analysis</p>
+          <p className="text-gray-600 mt-1">Expense breakdown and analysis (including salaries)</p>
         </div>
         <div className="text-right">
           <div className="text-sm text-gray-500">Total Expenses</div>
@@ -173,7 +198,7 @@ export function ExpenseChart() {
             <span className="text-sm font-medium text-orange-800">Categories</span>
           </div>
           <div className="text-xl font-bold text-orange-900">{data.length}</div>
-          <div className="text-xs text-orange-700 mt-1">Cost types</div>
+          <div className="text-xs text-orange-700 mt-1">Cost types + Salaries</div>
         </div>
       </div>
 
@@ -238,7 +263,7 @@ export function ExpenseChart() {
 
       {/* Expense List */}
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-        <h4 className="text-lg font-semibold text-gray-900 mb-4">Expense Breakdown</h4>
+        <h4 className="text-lg font-semibold text-gray-900 mb-4">Expense Breakdown (Sorted by Amount)</h4>
         <div className="space-y-3">
           {data.map((item, index) => (
             <div 
