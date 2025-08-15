@@ -11,6 +11,7 @@ export function SummaryCard({}: SummaryCardProps) {
   const [expenses, setExpenses] = useState(0);
   const [salaries, setSalaries] = useState(0);
   const [ccFees, setCCFees] = useState(0);
+  const [commissionFees, setCommissionFees] = useState(0);
   const [netProfit, setNetProfit] = useState(0);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState("");
@@ -100,7 +101,8 @@ export function SummaryCard({}: SummaryCardProps) {
           revenue: calculateRevenue(comparisonRevenueData),
           expenses: calculateExpenses(comparisonExpenseData),
           salaries: calculateSalaries(comparisonSalaryData),
-          ccFees: calculateCCFees(comparisonRevenueData)
+          ccFees: calculateCCFees(comparisonRevenueData),
+          commissionFees: calculateCommissionFees(comparisonRevenueData)
         };
       } else if (comparisonMode === 'qoq') {
         // Current quarter vs previous quarter
@@ -166,7 +168,8 @@ export function SummaryCard({}: SummaryCardProps) {
           revenue: calculateRevenue(comparisonRevenueData),
           expenses: calculateExpenses(comparisonExpenseData),
           salaries: calculateSalaries(comparisonSalaryData),
-          ccFees: calculateCCFees(comparisonRevenueData)
+          ccFees: calculateCCFees(comparisonRevenueData),
+          commissionFees: calculateCommissionFees(comparisonRevenueData)
         };
       }
 
@@ -174,12 +177,14 @@ export function SummaryCard({}: SummaryCardProps) {
       const expensesTotal = calculateExpenses(filteredExpenseData);
       const salariesTotal = calculateSalaries(filteredSalaryData);
       const ccFeesTotal = calculateCCFees(filteredRevenueData);
-      const netProfitTotal = revenueTotal - expensesTotal - salariesTotal - ccFeesTotal;
+      const commissionFeesTotal = calculateCommissionFees(filteredRevenueData);
+      const netProfitTotal = revenueTotal - expensesTotal - salariesTotal - ccFeesTotal - commissionFeesTotal;
 
       setRevenue(revenueTotal);
       setExpenses(expensesTotal);
       setSalaries(salariesTotal);
       setCCFees(ccFeesTotal);
+      setCommissionFees(commissionFeesTotal);
       setNetProfit(netProfitTotal);
       setComparisonData(comparisonPeriodData);
       setLastUpdated(new Date().toLocaleTimeString());
@@ -227,6 +232,19 @@ export function SummaryCard({}: SummaryCardProps) {
     }, 0));
   };
 
+  const calculateCommissionFees = (revenueData: any[]) => {
+    return Math.round(revenueData.reduce((sum, item) => {
+      const ddFees = parseFloat(item["DD Fees"] || "0");
+      const ueFees = parseFloat(item["UE Fees"] || "0");
+      const ghFees = parseFloat(item["GH Fees"] || "0");
+      const foodjaFees = parseFloat(item["Foodja Fees"] || "0");
+      const ezCaterFees = parseFloat(item["EzCater Fees"] || "0");
+      const relishFees = parseFloat(item["Relish Fees"] || "0");
+      
+      return sum + ddFees + ueFees + ghFees + foodjaFees + ezCaterFees + relishFees;
+    }, 0));
+  };
+
   const getComparisonText = () => {
     if (comparisonMode === 'yoy') return 'Year over Year';
     if (comparisonMode === 'qoq') return 'Quarter over Quarter';
@@ -242,7 +260,7 @@ export function SummaryCard({}: SummaryCardProps) {
     };
   };
 
-  const totalCosts = expenses + salaries + ccFees;
+  const totalCosts = expenses + salaries + ccFees + commissionFees;
   const profitMargin = revenue > 0 ? Math.round((netProfit / revenue) * 100) : 0;
 
   if (loading) {
@@ -405,7 +423,7 @@ export function SummaryCard({}: SummaryCardProps) {
           {comparisonData && (
             <div className="text-sm">
               {(() => {
-                const previousNetProfit = comparisonData.revenue - comparisonData.expenses - comparisonData.salaries - (comparisonData.ccFees || 0);
+                const previousNetProfit = comparisonData.revenue - comparisonData.expenses - comparisonData.salaries - (comparisonData.ccFees || 0) - (comparisonData.commissionFees || 0);
                 const change = getComparisonChange(netProfit, previousNetProfit);
                 if (change) {
                   return (
@@ -427,7 +445,7 @@ export function SummaryCard({}: SummaryCardProps) {
           <span className="text-blue-600 text-xl">📊</span>
           <h3 className="text-xl font-semibold text-gray-900">Financial Summary</h3>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
           <div>
             <div className="text-2xl font-bold text-green-600">${revenue.toLocaleString()}</div>
             <div className="text-sm text-gray-600">Revenue</div>
@@ -436,12 +454,17 @@ export function SummaryCard({}: SummaryCardProps) {
           <div>
             <div className="text-2xl font-bold text-red-600">${totalCosts.toLocaleString()}</div>
             <div className="text-sm text-gray-600">Total Costs</div>
-            <div className="text-xs text-gray-500">Expenses + Salaries + CC Fees</div>
+            <div className="text-xs text-gray-500">Expenses + Salaries + CC Fees + Commission Fees</div>
           </div>
           <div>
             <div className="text-2xl font-bold text-orange-600">${ccFees.toLocaleString()}</div>
             <div className="text-sm text-gray-600">CC Fees</div>
             <div className="text-xs text-gray-500">Credit card processing fees</div>
+          </div>
+          <div>
+            <div className="text-2xl font-bold text-yellow-600">${commissionFees.toLocaleString()}</div>
+            <div className="text-sm text-gray-600">Commission Fees</div>
+            <div className="text-xs text-gray-500">3rd party delivery fees</div>
           </div>
           <div>
             <div className="text-2xl font-bold text-purple-600">{profitMargin}%</div>
