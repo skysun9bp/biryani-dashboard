@@ -50,7 +50,7 @@ export function RevenueChart() {
         const relish = parseFloat(item["Relish"] || "0");
         const waiterCom = parseFloat(item["waiter.com"] || "0");
         
-        const totalRev = cashInReport + card + dd + ue + gh + cn + catering + otherCash + foodja + zelle + ezCater + relish + waiterCom;
+        const totalRev = Math.round(cashInReport + card + dd + ue + gh + cn + catering + otherCash + foodja + zelle + ezCater + relish + waiterCom);
 
         // Net Income calculation
         const card2 = parseFloat(item["Card2"] || "0");
@@ -65,7 +65,7 @@ export function RevenueChart() {
         const waiterCom2 = parseFloat(item["waiter.com2"] || "0");
         const cashInReport2 = parseFloat(item["Cash in Report"] || "0");
 
-        const netInc = card2 + dd2 + ue2 + gh2 + catering2 + otherCash2 + foodja2 + ezCater2 + relish2 + waiterCom2 + cashInReport2;
+        const netInc = Math.round(card2 + dd2 + ue2 + gh2 + catering2 + otherCash2 + foodja2 + ezCater2 + relish2 + waiterCom2 + cashInReport2);
 
         return {
           date: item["Column 1"] || "Unknown Date",
@@ -102,8 +102,8 @@ export function RevenueChart() {
         };
       });
 
-      const totalRev = processedData.reduce((sum, item) => sum + item.revenue, 0);
-      const totalNetInc = processedData.reduce((sum, item) => sum + item.netIncome, 0);
+      const totalRev = Math.round(processedData.reduce((sum, item) => sum + item.revenue, 0));
+      const totalNetInc = Math.round(processedData.reduce((sum, item) => sum + item.netIncome, 0));
 
       setData(processedData);
       setTotalRevenue(totalRev);

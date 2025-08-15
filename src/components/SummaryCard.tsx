@@ -10,6 +10,7 @@ export function SummaryCard({}: SummaryCardProps) {
   const [revenue, setRevenue] = useState(0);
   const [expenses, setExpenses] = useState(0);
   const [salaries, setSalaries] = useState(0);
+  const [ccFees, setCCFees] = useState(0);
   const [netProfit, setNetProfit] = useState(0);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState("");
@@ -98,7 +99,8 @@ export function SummaryCard({}: SummaryCardProps) {
         comparisonPeriodData = {
           revenue: calculateRevenue(comparisonRevenueData),
           expenses: calculateExpenses(comparisonExpenseData),
-          salaries: calculateSalaries(comparisonSalaryData)
+          salaries: calculateSalaries(comparisonSalaryData),
+          ccFees: calculateCCFees(comparisonRevenueData)
         };
       } else if (comparisonMode === 'qoq') {
         // Current quarter vs previous quarter
@@ -163,18 +165,21 @@ export function SummaryCard({}: SummaryCardProps) {
         comparisonPeriodData = {
           revenue: calculateRevenue(comparisonRevenueData),
           expenses: calculateExpenses(comparisonExpenseData),
-          salaries: calculateSalaries(comparisonSalaryData)
+          salaries: calculateSalaries(comparisonSalaryData),
+          ccFees: calculateCCFees(comparisonRevenueData)
         };
       }
 
       const revenueTotal = calculateRevenue(filteredRevenueData);
       const expensesTotal = calculateExpenses(filteredExpenseData);
       const salariesTotal = calculateSalaries(filteredSalaryData);
-      const netProfitTotal = revenueTotal - expensesTotal - salariesTotal;
+      const ccFeesTotal = calculateCCFees(filteredRevenueData);
+      const netProfitTotal = revenueTotal - expensesTotal - salariesTotal - ccFeesTotal;
 
       setRevenue(revenueTotal);
       setExpenses(expensesTotal);
       setSalaries(salariesTotal);
+      setCCFees(ccFeesTotal);
       setNetProfit(netProfitTotal);
       setComparisonData(comparisonPeriodData);
       setLastUpdated(new Date().toLocaleTimeString());
@@ -185,7 +190,7 @@ export function SummaryCard({}: SummaryCardProps) {
   }, [comparisonMode, selectedYear, selectedMonth]);
 
   const calculateRevenue = (data: any[]) => {
-    return data.reduce((sum, item) => {
+    return Math.round(data.reduce((sum, item) => {
       const cashInReport = parseFloat(item["Cash in Report"] || "0");
       const card = parseFloat(item["Card"] || "0");
       const dd = parseFloat(item["DD"] || "0");
@@ -201,19 +206,25 @@ export function SummaryCard({}: SummaryCardProps) {
       const waiterCom = parseFloat(item["waiter.com"] || "0");
       
       return sum + cashInReport + card + dd + ue + gh + cn + catering + otherCash + foodja + zelle + ezCater + relish + waiterCom;
-    }, 0);
+    }, 0));
   };
 
   const calculateExpenses = (data: any[]) => {
-    return data.reduce((sum, item) => {
+    return Math.round(data.reduce((sum, item) => {
       return sum + parseFloat(item["Amount"] || "0");
-    }, 0);
+    }, 0));
   };
 
   const calculateSalaries = (data: any[]) => {
-    return data.reduce((sum, item) => {
+    return Math.round(data.reduce((sum, item) => {
       return sum + parseFloat(item["Amount"] || "0");
-    }, 0);
+    }, 0));
+  };
+
+  const calculateCCFees = (revenueData: any[]) => {
+    return Math.round(revenueData.reduce((sum, item) => {
+      return sum + parseFloat(item["CC Fees"] || "0");
+    }, 0));
   };
 
   const getComparisonText = () => {
@@ -226,13 +237,13 @@ export function SummaryCard({}: SummaryCardProps) {
     if (previous === 0) return null;
     const change = ((current - previous) / previous) * 100;
     return {
-      change,
+      change: Math.round(change),
       isPositive: change > 0
     };
   };
 
-  const totalCosts = expenses + salaries;
-  const profitMargin = revenue > 0 ? ((netProfit / revenue) * 100) : 0;
+  const totalCosts = expenses + salaries + ccFees;
+  const profitMargin = revenue > 0 ? Math.round((netProfit / revenue) * 100) : 0;
 
   if (loading) {
     return (
@@ -320,7 +331,7 @@ export function SummaryCard({}: SummaryCardProps) {
                 if (change) {
                   return (
                     <span className={`${change.isPositive ? 'text-green-600' : 'text-red-600'}`}>
-                      {change.isPositive ? '↗' : '↘'} {Math.abs(change.change).toFixed(1)}% vs previous
+                      {change.isPositive ? '↗' : '↘'} {Math.abs(change.change)}% vs previous
                     </span>
                   );
                 }
@@ -346,7 +357,7 @@ export function SummaryCard({}: SummaryCardProps) {
                 if (change) {
                   return (
                     <span className={`${change.isPositive ? 'text-red-600' : 'text-green-600'}`}>
-                      {change.isPositive ? '↗' : '↘'} {Math.abs(change.change).toFixed(1)}% vs previous
+                      {change.isPositive ? '↗' : '↘'} {Math.abs(change.change)}% vs previous
                     </span>
                   );
                 }
@@ -372,7 +383,7 @@ export function SummaryCard({}: SummaryCardProps) {
                 if (change) {
                   return (
                     <span className={`${change.isPositive ? 'text-red-600' : 'text-green-600'}`}>
-                      {change.isPositive ? '↗' : '↘'} {Math.abs(change.change).toFixed(1)}% vs previous
+                      {change.isPositive ? '↗' : '↘'} {Math.abs(change.change)}% vs previous
                     </span>
                   );
                 }
@@ -394,12 +405,12 @@ export function SummaryCard({}: SummaryCardProps) {
           {comparisonData && (
             <div className="text-sm">
               {(() => {
-                const previousNetProfit = comparisonData.revenue - comparisonData.expenses - comparisonData.salaries;
+                const previousNetProfit = comparisonData.revenue - comparisonData.expenses - comparisonData.salaries - (comparisonData.ccFees || 0);
                 const change = getComparisonChange(netProfit, previousNetProfit);
                 if (change) {
                   return (
                     <span className={`${change.isPositive ? 'text-green-600' : 'text-red-600'}`}>
-                      {change.isPositive ? '↗' : '↘'} {Math.abs(change.change).toFixed(1)}% vs previous
+                      {change.isPositive ? '↗' : '↘'} {Math.abs(change.change)}% vs previous
                     </span>
                   );
                 }
@@ -416,7 +427,7 @@ export function SummaryCard({}: SummaryCardProps) {
           <span className="text-blue-600 text-xl">📊</span>
           <h3 className="text-xl font-semibold text-gray-900">Financial Summary</h3>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div>
             <div className="text-2xl font-bold text-green-600">${revenue.toLocaleString()}</div>
             <div className="text-sm text-gray-600">Revenue</div>
@@ -425,10 +436,15 @@ export function SummaryCard({}: SummaryCardProps) {
           <div>
             <div className="text-2xl font-bold text-red-600">${totalCosts.toLocaleString()}</div>
             <div className="text-sm text-gray-600">Total Costs</div>
-            <div className="text-xs text-gray-500">Expenses + Salaries</div>
+            <div className="text-xs text-gray-500">Expenses + Salaries + CC Fees</div>
           </div>
           <div>
-            <div className="text-2xl font-bold text-purple-600">{profitMargin.toFixed(1)}%</div>
+            <div className="text-2xl font-bold text-orange-600">${ccFees.toLocaleString()}</div>
+            <div className="text-sm text-gray-600">CC Fees</div>
+            <div className="text-xs text-gray-500">Credit card processing fees</div>
+          </div>
+          <div>
+            <div className="text-2xl font-bold text-purple-600">{profitMargin}%</div>
             <div className="text-sm text-gray-600">Profit Margin</div>
             <div className="text-xs text-gray-500">Net Profit / Revenue</div>
           </div>

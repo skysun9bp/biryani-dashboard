@@ -81,9 +81,9 @@ export function ExpenseChart() {
       });
 
       // Add salaries as a separate category
-      const totalSalaries = filteredSalaryData.reduce((sum, item) => {
+      const totalSalaries = Math.round(filteredSalaryData.reduce((sum, item) => {
         return sum + parseFloat(item["Amount"] || "0");
-      }, 0);
+      }, 0));
       
       if (totalSalaries > 0) {
         expenseByCostType["Salaries"] = totalSalaries;
@@ -103,15 +103,15 @@ export function ExpenseChart() {
       const chartData = Object.entries(expenseByCostType)
         .map(([costType, amount]) => ({
           costType: costType,
-          amount: amount,
+          amount: Math.round(amount),
           percentage: 0,
         }))
         .sort((a, b) => b.amount - a.amount); // Sort by descending amount
       
-      const total = chartData.reduce((sum, item) => sum + item.amount, 0);
+      const total = Math.round(chartData.reduce((sum, item) => sum + item.amount, 0));
       const updatedData = chartData.map(item => ({
         ...item,
-        percentage: total > 0 ? ((item.amount / total) * 100).toFixed(1) : "0"
+        percentage: total > 0 ? Math.round((item.amount / total) * 100) : 0
       }));
       
       setData(updatedData);

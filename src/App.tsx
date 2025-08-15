@@ -125,7 +125,7 @@ function RevenueTable() {
             const relish = parseFloat(item["Relish"] || "0");
             const waiterCom = parseFloat(item["waiter.com"] || "0");
             
-            const total = cashInReport + card + dd + ue + gh + cn + catering + otherCash + foodja + zelle + ezCater + relish + waiterCom;
+            const total = Math.round(cashInReport + card + dd + ue + gh + cn + catering + otherCash + foodja + zelle + ezCater + relish + waiterCom);
             
             return (
               <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
@@ -179,9 +179,9 @@ function ExpenseTable() {
         .slice(0, 5);
 
       // Calculate total expenses for the filtered period
-      const totalExp = filteredData.reduce((sum, item) => {
+      const totalExp = Math.round(filteredData.reduce((sum, item) => {
         return sum + parseFloat(item["Amount"] || "0");
-      }, 0);
+      }, 0));
 
       setData(sortedData);
       setTotalExpenses(totalExp);
@@ -293,9 +293,9 @@ function SalaryTable() {
         .slice(0, 5);
 
       // Calculate total salaries for the month
-      const totalSal = targetMonthData.reduce((sum, item) => {
+      const totalSal = Math.round(targetMonthData.reduce((sum, item) => {
         return sum + parseFloat(item["Amount"] || "0");
-      }, 0);
+      }, 0));
 
       setData(sortedData);
       setTotalSalaries(totalSal);

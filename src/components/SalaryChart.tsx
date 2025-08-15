@@ -45,7 +45,7 @@ export function SalaryChart() {
       
       targetMonthData.forEach(item => {
         const employee = item["Resource Name"] || "Unknown";
-        const amount = parseFloat(item["Amount"] || "0");
+        const amount = Math.round(parseFloat(item["Amount"] || "0"));
         
         if (salaryByEmployee[employee]) {
           salaryByEmployee[employee] += amount;
@@ -56,15 +56,15 @@ export function SalaryChart() {
       
       const chartData = Object.entries(salaryByEmployee).map(([employee, amount]) => ({
         employee: employee,
-        salary: amount,
+        salary: Math.round(amount),
         percentage: 0,
       }));
       
-      const total = chartData.reduce((sum, item) => sum + item.salary, 0);
-      const avg = total / chartData.length;
+      const total = Math.round(chartData.reduce((sum, item) => sum + item.salary, 0));
+      const avg = Math.round(total / chartData.length);
       const updatedData = chartData.map(item => ({
         ...item,
-        percentage: total > 0 ? ((item.salary / total) * 100).toFixed(1) : "0"
+        percentage: total > 0 ? Math.round((item.salary / total) * 100) : 0
       }));
       
       setData(updatedData);

@@ -34,13 +34,14 @@ Net Income includes Sales Tax that needs to be deducted for true profitability a
 
 ### Formula:
 ```
-Net Profit = Total Revenue - Total Expenses - Total Salaries
+Net Profit = Total Revenue - Total Expenses - Total Salaries - CC Fees
 ```
 
 ### Where:
 - **Total Revenue** = Sum of: Card, DD, UE, GH, CN, Catering, Other Cash, Foodja, Zelle, EzCater, Relish, waiter.com, Cash in Report
 - **Total Expenses** = Sum of all amounts from the "Expenses" sheet
 - **Total Salaries** = Sum of all amounts from the "Salaries" sheet
+- **CC Fees** = Sum of "CC Fees" column from the "Net Sale" sheet (credit card processing fees)
 
 ## Expected Expense Categories
 
@@ -91,8 +92,8 @@ The dashboard is configured to track these expense categories from the "Expenses
 ## Summary
 
 - **Net Income**: Revenue-based calculation (includes tax)
-- **Net Profit**: True profitability after all costs
-- **Expenses**: Includes all operational expenses and salaries
-- **Categories**: 15 primary expense categories + salaries
+- **Net Profit**: True profitability after all costs including CC Fees
+- **Expenses**: Includes all operational expenses, salaries, and CC Fees
+- **Categories**: 15 primary expense categories + salaries + CC Fees
 - **Sorting**: Expenses are sorted by amount (highest to lowest)
 - **Validation**: Dashboard monitors for missing expense categories
