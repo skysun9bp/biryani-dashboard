@@ -1,0 +1,220 @@
+const express = require('express');
+const { PrismaClient } = require('@prisma/client');
+const router = express.Router();
+
+const prisma = new PrismaClient();
+
+// Get financial data for reports
+router.get('/financial-data', async (req, res) => {
+  try {
+    const { year, month } = req.query;
+    
+    // Build where clause
+    const whereClause = {};
+    if (year) {
+      whereClause.year = parseInt(year);
+    }
+    if (month) {
+      whereClause.month = month;
+    }
+
+    // Get revenue data
+    const revenueData = await prisma.revenueEntry.findMany({
+      where: whereClause,
+      select: {
+        date: true,
+        month: true,
+        year: true,
+        cashInReport: true,
+        card: true,
+        dd: true,
+        ue: true,
+        gh: true,
+        cn: true,
+        catering: true,
+        otherCash: true,
+        foodja: true,
+        zelle: true,
+        ezCater: true,
+        relish: true,
+        waiterCom: true,
+        ccFees: true,
+        ddFees: true,
+        ueFees: true,
+        ghFees: true,
+        foodjaFees: true,
+        ezCaterFees: true,
+        relishFees: true
+      }
+    });
+
+    // Get expense data
+    const expenseData = await prisma.expenseEntry.findMany({
+      where: whereClause,
+      select: {
+        date: true,
+        month: true,
+        year: true,
+        costType: true,
+        expenseType: true,
+        itemVendor: true,
+        amount: true
+      }
+    });
+
+    // Get salary data
+    const salaryData = await prisma.salaryEntry.findMany({
+      where: whereClause,
+      select: {
+        date: true,
+        month: true,
+        year: true,
+        resourceName: true,
+        amount: true,
+        actualPaidDate: true
+      }
+    });
+
+    // Process data for charts
+    const financialData = processFinancialData(revenueData, expenseData, salaryData);
+    const expenseBreakdown = processExpenseBreakdown(expenseData);
+    const salaryBreakdown = processSalaryBreakdown(salaryData);
+
+    res.json({
+      financialData,
+      expenseBreakdown,
+      salaryBreakdown
+    });
+
+  } catch (error) {
+    console.error('Error fetching financial data:', error);
+    res.status(500).json({ error: 'Failed to fetch financial data' });
+  }
+});
+
+// Process financial data for trends
+function processFinancialData(revenueData, expenseData, salaryData) {
+  const monthlyData = {};
+
+  // Process revenue data
+  revenueData.forEach(entry => {
+    const key = `${entry.month}-${entry.year}`;
+    if (!monthlyData[key]) {
+      monthlyData[key] = {
+        month: entry.month,
+        year: entry.year,
+        revenue: 0,
+        expenses: 0,
+        salaries: 0,
+        netProfit: 0
+      };
+    }
+
+    // Calculate total revenue
+    monthlyData[key].revenue += 
+      (entry.cashInReport || 0) +
+      (entry.card || 0) +
+      (entry.dd || 0) +
+      (entry.ue || 0) +
+      (entry.gh || 0) +
+      (entry.cn || 0) +
+      (entry.catering || 0) +
+      (entry.otherCash || 0) +
+      (entry.foodja || 0) +
+      (entry.zelle || 0) +
+      (entry.ezCater || 0) +
+      (entry.relish || 0) +
+      (entry.waiterCom || 0);
+  });
+
+  // Process expense data
+  expenseData.forEach(entry => {
+    const key = `${entry.month}-${entry.year}`;
+    if (!monthlyData[key]) {
+      monthlyData[key] = {
+        month: entry.month,
+        year: entry.year,
+        revenue: 0,
+        expenses: 0,
+        salaries: 0,
+        netProfit: 0
+      };
+    }
+    monthlyData[key].expenses += entry.amount || 0;
+  });
+
+  // Process salary data
+  salaryData.forEach(entry => {
+    const key = `${entry.month}-${entry.year}`;
+    if (!monthlyData[key]) {
+      monthlyData[key] = {
+        month: entry.month,
+        year: entry.year,
+        revenue: 0,
+        expenses: 0,
+        salaries: 0,
+        netProfit: 0
+      };
+    }
+    monthlyData[key].salaries += entry.amount || 0;
+  });
+
+  // Calculate net profit and sort by date
+  const result = Object.values(monthlyData).map(item => ({
+    ...item,
+    netProfit: item.revenue - item.expenses - item.salaries
+  }));
+
+  // Sort by year and month
+  const monthOrder = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  result.sort((a, b) => {
+    if (a.year !== b.year) return a.year - b.year;
+    return monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month);
+  });
+
+  return result;
+}
+
+// Process expense breakdown
+function processExpenseBreakdown(expenseData) {
+  const breakdown = {};
+
+  expenseData.forEach(entry => {
+    const category = entry.costType || 'Other';
+    if (!breakdown[category]) {
+      breakdown[category] = 0;
+    }
+    breakdown[category] += entry.amount || 0;
+  });
+
+  const total = Object.values(breakdown).reduce((sum, amount) => sum + amount, 0);
+
+  return Object.entries(breakdown).map(([category, amount]) => ({
+    category,
+    amount,
+    percentage: total > 0 ? Math.round((amount / total) * 100) : 0
+  })).sort((a, b) => b.amount - a.amount);
+}
+
+// Process salary breakdown
+function processSalaryBreakdown(salaryData) {
+  const breakdown = {};
+
+  salaryData.forEach(entry => {
+    const employee = entry.resourceName || 'Unknown';
+    if (!breakdown[employee]) {
+      breakdown[employee] = 0;
+    }
+    breakdown[employee] += entry.amount || 0;
+  });
+
+  const total = Object.values(breakdown).reduce((sum, amount) => sum + amount, 0);
+
+  return Object.entries(breakdown).map(([employee, amount]) => ({
+    employee,
+    amount,
+    percentage: total > 0 ? Math.round((amount / total) * 100) : 0
+  })).sort((a, b) => b.amount - a.amount);
+}
+
+module.exports = router;

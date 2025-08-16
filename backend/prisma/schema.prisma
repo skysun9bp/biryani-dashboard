@@ -1,0 +1,94 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("USER") // Changed from enum to String for SQLite compatibility
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  revenueEntries RevenueEntry[]
+  expenseEntries ExpenseEntry[]
+  salaryEntries  SalaryEntry[]
+
+  @@map("users")
+}
+
+model RevenueEntry {
+  id            Int      @id @default(autoincrement())
+  date          DateTime
+  month         String
+  year          Int
+  cashInReport  Float?   @default(0)
+  card          Float?   @default(0)
+  dd            Float?   @default(0)
+  ue            Float?   @default(0)
+  gh            Float?   @default(0)
+  cn            Float?   @default(0)
+  catering      Float?   @default(0)
+  otherCash     Float?   @default(0)
+  foodja        Float?   @default(0)
+  zelle         Float?   @default(0)
+  ezCater       Float?   @default(0)
+  relish        Float?   @default(0)
+  waiterCom     Float?   @default(0)
+  ccFees        Float?   @default(0)
+  ddFees        Float?   @default(0)
+  ueFees        Float?   @default(0)
+  ghFees        Float?   @default(0)
+  foodjaFees    Float?   @default(0)
+  ezCaterFees   Float?   @default(0)
+  relishFees    Float?   @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  createdBy     Int
+  user          User     @relation(fields: [createdBy], references: [id])
+
+  @@map("revenue_entries")
+}
+
+model ExpenseEntry {
+  id          Int      @id @default(autoincrement())
+  date        DateTime
+  month       String
+  year        Int
+  costType    String
+  expenseType String?
+  itemVendor  String?
+  amount      Float
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   Int
+  user        User     @relation(fields: [createdBy], references: [id])
+
+  @@map("expense_entries")
+}
+
+model SalaryEntry {
+  id             Int      @id @default(autoincrement())
+  date           DateTime
+  month          String
+  year           Int
+  resourceName   String
+  amount         Float
+  actualPaidDate DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  createdBy      Int
+  user           User     @relation(fields: [createdBy], references: [id])
+
+  @@map("salary_entries")
+}

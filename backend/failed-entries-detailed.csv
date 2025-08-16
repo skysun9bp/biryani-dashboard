@@ -1,0 +1,46 @@
+FAILED ENTRIES ANALYSIS - MANUAL ENTRY REQUIRED
+==================================================
+
+HIGH PRIORITY ENTRIES (Need to Enter)
+==================================================
+
+EXPENSE ENTRIES - Sales Tax Payments
+Date,Item/Vendor,Cost Type,Amount,Payment Type,Reason
+1-Feb-24,BUSINESS TO BUSINESS ACH CA DEPT TAX FEE CDTFA EPMT 240130 17869116 PRNG RESTO LLC,Sales Tax & CPA,7222,ACH,Amount field was empty
+2-May-24,BUSINESS TO BUSINESS ACH CA DEPT TAX FEE CDTFA EPMT 240430 17869116 PRNG RESTO LLC,Sales Tax & CPA,12166,ACH,Amount field was empty
+30-Jul-24,BUSINESS TO BUSINESS ACH CA DEPT TAX FEE CDTFA EPMT 240730 17869116 PRNG RESTO LLC,Sales Tax & CPA,12505,ACH,Amount field was empty
+31-Oct-24,BUSINESS TO BUSINESS ACH CA DEPT TAX FEE CDTFA EPMT 240130 17869116 PRNG RESTO LLC,Sales Tax & CPA,14400,ACH,Amount was "0"
+
+EXPENSE ENTRIES - Other
+Date,Item/Vendor,Cost Type,Amount,Payment Type,Reason
+16-Sep-24,India Parcel,Food Cost,TBD,Cash,Amount field was empty (marked as TBD)
+
+SALARY ENTRIES - Need Amount Confirmation
+Date,Resource Name,Amount,Mode,Comments,Reason
+8/31/2024,Vijaya,TBP,,,Amount field was empty (marked as TBP)
+1/31/2025,Saanvi,,PYC,,Amount field was empty
+2/15/2025,Saanvi,,PYC,,Amount field was empty
+2/28/2025,Saanvi,,PYC,,Amount field was empty
+3/16/2025,Saanvi,,PYC,,Amount field was empty
+3/31/2025,Saanvi,,PYC,,Amount field was empty
+
+LOW PRIORITY ENTRIES (Can Skip)
+==================================================
+
+SALARY ENTRIES - Zero Amounts (Time Off)
+Date,Resource Name,Amount,Mode,Comments,Reason
+1/15/2025,Dora,0,Cash,Time off,Amount was "0" (marked as Time off)
+1/31/2025,Dora,0,Cash,Time off,Amount was "0" (marked as Time off)
+
+EMPTY ROWS (Can Ignore)
+Row Numbers: 14-31 (18 completely empty rows)
+
+==================================================
+INSTRUCTIONS FOR MANUAL ENTRY:
+1. Open your dashboard at http://localhost:5173
+2. Go to "Data Entry" tab
+3. Use the appropriate forms for each entry type
+4. For dates, use MM/DD/YYYY format
+5. For amounts, use the values shown in this file
+6. Pay special attention to required fields
+==================================================

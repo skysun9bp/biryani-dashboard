@@ -1,0 +1,32 @@
+Entry Type,Date,Reason,Item/Vendor,Resource Name,Cost Type,Amount,Payment Type,Mode,Comments,Row Number
+Expense,1-Feb-24,Invalid amount,BUSINESS TO BUSINESS ACH CA DEPT TAX FEE CDTFA EPMT 240130 17869116 PRNG RESTO LLC,,Sales Tax & CPA,7222,ACH,,,1
+Expense,2-May-24,Invalid amount,BUSINESS TO BUSINESS ACH CA DEPT TAX FEE CDTFA EPMT 240430 17869116 PRNG RESTO LLC,,Sales Tax & CPA,12166,ACH,,,2
+Expense,30-Jul-24,Invalid amount,BUSINESS TO BUSINESS ACH CA DEPT TAX FEE CDTFA EPMT 240730 17869116 PRNG RESTO LLC,,Sales Tax & CPA,12505,ACH,,,3
+Expense,16-Sep-24,Invalid amount,India Parcel,,Food Cost,TBD,Cash,,,4
+Expense,31-Oct-24,Invalid amount,BUSINESS TO BUSINESS ACH CA DEPT TAX FEE CDTFA EPMT 240130 17869116 PRNG RESTO LLC,,Sales Tax & CPA,14400,ACH,,,5
+Salary,8/31/2024,Empty required fields,,Vijaya,,,TBP,,,6
+Salary,1/15/2025,Invalid amount,,Dora,,,0,Cash,Time off,7
+Salary,1/31/2025,Invalid amount,,Dora,,,0,Cash,Time off,8
+Salary,1/31/2025,Empty required fields,,Saanvi,,,PYC,,,9
+Salary,2/15/2025,Empty required fields,,Saanvi,,,PYC,,,10
+Salary,2/28/2025,Empty required fields,,Saanvi,,,PYC,,,11
+Salary,3/16/2025,Empty required fields,,Saanvi,,,PYC,,,12
+Salary,3/31/2025,Empty required fields,,Saanvi,,,PYC,,,13
+Salary,N/A,Empty required fields,,,,,,,,14
+Salary,N/A,Empty required fields,,,,,,,,15
+Salary,N/A,Empty required fields,,,,,,,,16
+Salary,N/A,Empty required fields,,,,,,,,17
+Salary,N/A,Empty required fields,,,,,,,,18
+Salary,N/A,Empty required fields,,,,,,,,19
+Salary,N/A,Empty required fields,,,,,,,,20
+Salary,N/A,Empty required fields,,,,,,,,21
+Salary,N/A,Empty required fields,,,,,,,,22
+Salary,N/A,Empty required fields,,,,,,,,23
+Salary,N/A,Empty required fields,,,,,,,,24
+Salary,N/A,Empty required fields,,,,,,,,25
+Salary,N/A,Empty required fields,,,,,,,,26
+Salary,N/A,Empty required fields,,,,,,,,27
+Salary,N/A,Empty required fields,,,,,,,,28
+Salary,N/A,Empty required fields,,,,,,,,29
+Salary,N/A,Empty required fields,,,,,,,,30
+Salary,N/A,Empty required fields,,,,,,,,31

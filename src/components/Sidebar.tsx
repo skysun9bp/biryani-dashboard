@@ -1,182 +1,131 @@
-import React, { useState, useEffect } from "react";
+import React from 'react';
+import { User } from '../services/api';
 
 interface SidebarProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
+  user: User | null;
+  onLogout: () => void;
 }
 
-export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
-  const [dataSource, setDataSource] = useState<'mock' | 'google-sheets'>('mock');
-
-  const menuItems = [
+export default function Sidebar({ activeTab, onTabChange, user, onLogout }: SidebarProps) {
+  const navigationItems = [
     {
-      id: "dashboard",
-      label: "Dashboard",
-      icon: "📊",
-      description: "Overview & Analytics"
+      name: 'Dashboard',
+      icon: '📊',
+      tab: 'dashboard',
+      description: 'Overview and analytics'
     },
     {
-      id: "revenue",
-      label: "Revenue",
-      icon: "💰",
-      description: "Sales & Income"
+      name: 'Revenue',
+      icon: '💰',
+      tab: 'revenue',
+      description: 'Revenue tracking and analysis'
     },
     {
-      id: "expenses",
-      label: "Expenses",
-      icon: "💸",
-      description: "Costs & Outflows"
+      name: 'Expenses',
+      icon: '💸',
+      tab: 'expenses',
+      description: 'Expense management'
     },
     {
-      id: "employees",
-      label: "Employees",
-      icon: "👥",
-      description: "Staff & Salaries"
+      name: 'Salaries',
+      icon: '👥',
+      tab: 'salaries',
+      description: 'Employee salary tracking'
     },
     {
-      id: "inventory",
-      label: "Inventory",
-      icon: "📦",
-      description: "Stock & Supplies"
+      name: 'Data Entry',
+      icon: '✏️',
+      tab: 'data-entry',
+      description: 'Add new entries'
     },
     {
-      id: "reports",
-      label: "Reports",
-      icon: "📈",
-      description: "Analytics & Insights"
-    },
-    {
-      id: "settings",
-      label: "Settings",
-      icon: "⚙️",
-      description: "Configuration"
+      name: 'Reports',
+      icon: '📈',
+      tab: 'reports',
+      description: 'Advanced analytics & trends'
     }
   ];
 
-  useEffect(() => {
-    // Check if Google Sheets is configured
-    const apiKey = import.meta.env.VITE_GOOGLE_SHEETS_API_KEY;
-    const spreadsheetId = import.meta.env.VITE_SPREADSHEET_ID;
-    
-    if (apiKey && spreadsheetId) {
-      setDataSource('google-sheets');
-    } else {
-      setDataSource('mock');
-    }
-  }, []);
-
   return (
-    <aside className="w-80 bg-white shadow-xl border-r border-gray-200 min-h-screen">
-      {/* Logo Section */}
+    <div className="w-64 bg-white shadow-lg border-r border-gray-200 flex flex-col">
+      {/* Logo/Brand */}
       <div className="p-6 border-b border-gray-200">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center text-white text-xl font-bold">
-            🍛
+        <div className="flex items-center">
+          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
+            <span className="text-white font-bold text-sm">B</span>
           </div>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Biryani House</h1>
-            <p className="text-sm text-gray-500">Restaurant Dashboard</p>
+            <h1 className="text-xl font-bold text-gray-900">Biryani</h1>
+            <p className="text-sm text-gray-500">Dashboard</p>
           </div>
         </div>
       </div>
 
-      {/* Data Source Indicator */}
-      {dataSource === 'mock' && (
-        <div className="p-4 border-b border-gray-200 bg-orange-50">
-          <div className="flex items-start space-x-3">
-            <span className="text-orange-600 text-lg">ℹ️</span>
-            <div>
-              <h3 className="text-sm font-semibold text-orange-900 mb-1">Demo Mode</h3>
-              <p className="text-xs text-orange-800 mb-2">
-                Currently using sample data. Connect to Google Sheets for real-time data.
+      {/* User Info */}
+      {user && (
+        <div className="p-4 border-b border-gray-200 bg-gray-50">
+          <div className="flex items-center">
+            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+              <span className="text-blue-600 font-semibold text-sm">
+                {user.name.charAt(0).toUpperCase()}
+              </span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-900 truncate">
+                {user.name}
               </p>
-              <a 
-                href="#google-sheets-setup" 
-                className="text-xs text-orange-700 underline hover:text-orange-900"
-                onClick={(e) => {
-                  e.preventDefault();
-                  alert('Check GOOGLE_SHEETS_SETUP.md for setup instructions!');
-                }}
-              >
-                Setup Guide →
-              </a>
+              <p className="text-xs text-gray-500 truncate">
+                {user.email}
+              </p>
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 mt-1">
+                {user.role}
+              </span>
             </div>
           </div>
         </div>
       )}
 
       {/* Navigation */}
-      <nav className="p-4">
-        <div className="space-y-2">
-          {menuItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => onTabChange(item.id)}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left transition-all duration-200 ${
-                activeTab === item.id
-                  ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg"
-                  : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
-              }`}
-            >
-              <span className="text-xl">{item.icon}</span>
-              <div className="flex-1">
-                <div className="font-medium">{item.label}</div>
-                <div className={`text-xs ${
-                  activeTab === item.id ? "text-blue-100" : "text-gray-500"
-                }`}>
-                  {item.description}
-                </div>
-              </div>
-            </button>
-          ))}
-        </div>
+      <nav className="flex-1 p-4 space-y-2">
+        {navigationItems.map((item) => (
+          <button
+            key={item.tab}
+            onClick={() => onTabChange(item.tab)}
+            className={`w-full flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
+              activeTab === item.tab
+                ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+            }`}
+          >
+            <span className="mr-3 text-lg">{item.icon}</span>
+            <div className="text-left">
+              <div className="font-medium">{item.name}</div>
+              <div className="text-xs text-gray-500">{item.description}</div>
+            </div>
+          </button>
+        ))}
       </nav>
 
-      {/* Quick Stats */}
+      {/* Logout */}
       <div className="p-4 border-t border-gray-200">
-        <h3 className="text-sm font-semibold text-gray-700 mb-3">Quick Stats</h3>
-        <div className="space-y-3">
-          <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-            <div className="flex items-center space-x-2">
-              <span className="text-green-600">📈</span>
-              <span className="text-sm font-medium text-gray-700">Today's Sales</span>
-            </div>
-            <span className="text-sm font-bold text-green-600">$2,450</span>
-          </div>
-          
-          <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-            <div className="flex items-center space-x-2">
-              <span className="text-blue-600">👥</span>
-              <span className="text-sm font-medium text-gray-700">Active Staff</span>
-            </div>
-            <span className="text-sm font-bold text-blue-600">8</span>
-          </div>
-          
-          <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
-            <div className="flex items-center space-x-2">
-              <span className="text-orange-600">🍽️</span>
-              <span className="text-sm font-medium text-gray-700">Orders Today</span>
-            </div>
-            <span className="text-sm font-bold text-orange-600">45</span>
-          </div>
-        </div>
+        <button
+          onClick={onLogout}
+          className="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 rounded-lg transition-colors"
+        >
+          <span className="mr-3">🚪</span>
+          Sign Out
+        </button>
       </div>
 
-      {/* User Profile */}
-      <div className="p-4 border-t border-gray-200 mt-auto">
-        <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
-          <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-semibold">
-            A
-          </div>
-          <div className="flex-1">
-            <div className="font-medium text-gray-900">Admin User</div>
-            <div className="text-xs text-gray-500">Restaurant Manager</div>
-          </div>
-          <button className="text-gray-400 hover:text-gray-600">
-            <span className="text-lg">⚙️</span>
-          </button>
+      {/* Connection Status */}
+      <div className="p-4 border-t border-gray-200">
+        <div className="flex items-center text-xs text-gray-500">
+          <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
+          Connected to Database
         </div>
       </div>
-    </aside>
+    </div>
   );
 }
