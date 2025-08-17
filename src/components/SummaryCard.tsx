@@ -1,7 +1,7 @@
 
 // File: /src/components/SummaryCard.tsx
 import React, { useEffect, useState } from "react";
-import { fetchSheetData } from "../utils/fetchSheet";
+import { apiService } from "../services/api";
 import { DateFilter } from "./DateFilter";
 
 interface SummaryCardProps {}
@@ -22,80 +22,40 @@ export function SummaryCard({}: SummaryCardProps) {
 
   useEffect(() => {
     async function loadData() {
-      const revenueData = await fetchSheetData("Net Sale");
-      const expenseData = await fetchSheetData("Expenses");
-      const salaryData = await fetchSheetData("Salaries");
-
-      // Get current date and calculate time periods
-      const currentDate = new Date();
-      const currentMonth = currentDate.toLocaleString('default', { month: 'short' });
-      const currentYear = currentDate.getFullYear().toString();
-      const currentQuarter = Math.ceil((currentDate.getMonth() + 1) / 3);
-
-      let filteredRevenueData = [];
-      let filteredExpenseData = [];
-      let filteredSalaryData = [];
-      let comparisonPeriodData = null;
-
-      if (comparisonMode === 'current') {
-        // Current month data
-        filteredRevenueData = revenueData.filter(row => {
-          const rowMonth = row["Month"] || "";
-          const rowYear = row["Year"] || "";
-          return rowMonth === selectedMonth && rowYear === selectedYear;
-        });
-
-        filteredExpenseData = expenseData.filter(row => {
-          const rowMonth = row["Month"] || "";
-          const rowYear = row["Year"] || "";
-          return rowMonth === selectedMonth && rowYear === selectedYear;
-        });
-
-        filteredSalaryData = salaryData.filter(row => {
-          const rowMonth = row["Month"] || "";
-          const rowYear = row["Year"] || "";
-          return rowMonth === selectedMonth && rowYear === selectedYear;
-        });
-      } else if (comparisonMode === 'yoy') {
-        // Current month vs same month last year
-        const lastYear = (parseInt(selectedYear) - 1).toString();
+      try {
+        const response = await apiService.getFinancialData(parseInt(selectedYear), selectedMonth);
+        const { financialData, expenseBreakdown, salaryBreakdown } = response;
         
-        filteredRevenueData = revenueData.filter(row => {
-          const rowMonth = row["Month"] || "";
-          const rowYear = row["Year"] || "";
-          return rowMonth === selectedMonth && rowYear === selectedYear;
-        });
-
-        filteredExpenseData = expenseData.filter(row => {
-          const rowMonth = row["Month"] || "";
-          const rowYear = row["Year"] || "";
-          return rowMonth === selectedMonth && rowYear === selectedYear;
-        });
-
-        filteredSalaryData = salaryData.filter(row => {
-          const rowMonth = row["Month"] || "";
-          const rowYear = row["Year"] || "";
-          return rowMonth === selectedMonth && rowYear === selectedYear;
-        });
-
-        // Comparison data (same month last year)
-        const comparisonRevenueData = revenueData.filter(row => {
-          const rowMonth = row["Month"] || "";
-          const rowYear = row["Year"] || "";
-          return rowMonth === selectedMonth && rowYear === lastYear;
-        });
-
-        const comparisonExpenseData = expenseData.filter(row => {
-          const rowMonth = row["Month"] || "";
-          const rowYear = row["Year"] || "";
-          return rowMonth === selectedMonth && rowYear === lastYear;
-        });
-
-        const comparisonSalaryData = salaryData.filter(row => {
-          const rowMonth = row["Month"] || "";
-          const rowYear = row["Year"] || "";
-          return rowMonth === selectedMonth && rowYear === lastYear;
-        });
+        // Calculate totals from the API data
+        const currentMonthData = financialData.find((item: any) => 
+          item.month === selectedMonth && item.year === parseInt(selectedYear)
+        ) || financialData[0]; // Fallback to first item if current month not found
+        
+        if (currentMonthData) {
+          setRevenue(currentMonthData.revenue || 0);
+          setExpenses(currentMonthData.expenses || 0);
+          setSalaries(currentMonthData.salaries || 0);
+          setNetProfit(currentMonthData.netProfit || 0);
+          
+          // Calculate fees from expense breakdown
+          const ccFeesTotal = expenseBreakdown
+            .filter((item: any) => item.category.toLowerCase().includes('credit') || item.category.toLowerCase().includes('card'))
+            .reduce((sum: number, item: any) => sum + item.amount, 0);
+          setCCFees(ccFeesTotal);
+          
+          const commissionTotal = expenseBreakdown
+            .filter((item: any) => item.category.toLowerCase().includes('commission'))
+            .reduce((sum: number, item: any) => sum + item.amount, 0);
+          setCommissionFees(commissionTotal);
+        }
+        
+        setLoading(false);
+        setLastUpdated(new Date().toLocaleString());
+      } catch (error) {
+        console.error('Error loading financial data:', error);
+        setLoading(false);
+      }
+    }
 
         comparisonPeriodData = {
           revenue: calculateRevenue(comparisonRevenueData),

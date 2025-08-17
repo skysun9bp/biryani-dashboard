@@ -431,6 +431,23 @@ class ApiService {
     return handleResponse(response);
   }
 
+  // Financial Data for Reports
+  async getFinancialData(year: number, month?: string): Promise<any> {
+    const token = getAuthToken();
+    if (!token) throw new Error('No authentication token');
+
+    const queryParams = new URLSearchParams();
+    queryParams.append('year', year.toString());
+    if (month) queryParams.append('month', month);
+
+    const response = await fetch(`${API_BASE_URL}/reports/financial-data?${queryParams}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    return handleResponse(response);
+  }
+
   // Health Check
   async healthCheck(): Promise<{ status: string; timestamp: string }> {
     const response = await fetch(`${API_BASE_URL}/health`);
