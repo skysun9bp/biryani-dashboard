@@ -9,37 +9,10 @@
       }
     }
   ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
-    },
-    {
-      "src": "\\.(js|mjs|jsx|ts|tsx)$",
-      "headers": {
-        "Content-Type": "application/javascript"
-      }
-    },
-    {
-      "src": "\\.(css)$",
-      "headers": {
-        "Content-Type": "text/css"
-      }
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ],
-  "headers": [
+  "rewrites": [
     {
       "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        }
-      ]
+      "destination": "/index.html"
     }
   ]
 }
