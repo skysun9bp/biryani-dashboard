@@ -10,6 +10,7 @@ const expenseRoutes = require('./routes/expense');
 const salaryRoutes = require('./routes/salary');
 const dashboardRoutes = require('./routes/dashboard');
 const reportsRoutes = require('./routes/reports');
+const migrationRoutes = require('./routes/migration');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -31,6 +32,7 @@ app.use('/api/expense', expenseRoutes);
 app.use('/api/salary', salaryRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/reports', reportsRoutes);
+app.use('/api/migration', migrationRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
