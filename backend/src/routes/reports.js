@@ -26,25 +26,33 @@ router.get('/financial-data', async (req, res) => {
         month: true,
         year: true,
         cashInReport: true,
+        card2: true,
         card: true,
         dd: true,
         ue: true,
         gh: true,
         cn: true,
-        catering: true,
-        otherCash: true,
-        foodja: true,
-        zelle: true,
-        ezCater: true,
-        relish: true,
-        waiterCom: true,
-        ccFees: true,
+        dd2: true,
+        ue2: true,
+        gh2: true,
+        cn2: true,
         ddFees: true,
         ueFees: true,
         ghFees: true,
+        catering: true,
+        otherCash: true,
+        foodja: true,
+        foodja2: true,
         foodjaFees: true,
+        zelle: true,
+        relish: true,
+        relish2: true,
+        relishFees: true,
+        ezCater: true,
+        ezCater2: true,
         ezCaterFees: true,
-        relishFees: true
+        waiterCom: true,
+        ccFees: true
       }
     });
 
@@ -122,17 +130,17 @@ function processFinancialData(revenueData, expenseData, salaryData) {
     // Calculate total revenue
     monthlyData[key].revenue += 
       (entry.cashInReport || 0) +
-      (entry.card || 0) +
-      (entry.dd || 0) +
-      (entry.ue || 0) +
-      (entry.gh || 0) +
-      (entry.cn || 0) +
+      (entry.card2 || 0) +
+      (entry.dd2 || 0) +
+      (entry.ue2 || 0) +
+      (entry.gh2 || 0) +
+      (entry.cn2 || 0) +
       (entry.catering || 0) +
       (entry.otherCash || 0) +
-      (entry.foodja || 0) +
+      (entry.foodja2 || 0) +
       (entry.zelle || 0) +
-      (entry.ezCater || 0) +
-      (entry.relish || 0) +
+      (entry.ezCater2 || 0) +
+      (entry.relish2 || 0) +
       (entry.waiterCom || 0);
 
     // Add fees
