@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { fetchSheetData } from "../utils/fetchSheet";
+import { apiService } from "../services/api";
 
 interface ExpenseDetailsProps {
   costType: string;
@@ -14,25 +14,27 @@ export function ExpenseDetails({ costType, onBack }: ExpenseDetailsProps) {
 
   useEffect(() => {
     async function loadExpenseDetails() {
-      const expenseData = await fetchSheetData("Expenses");
-      
-      // Get current month and year
-      const currentDate = new Date();
-      const currentMonth = currentDate.toLocaleString('default', { month: 'short' });
-      const currentYear = currentDate.getFullYear().toString();
-      
-      // Filter expenses for the selected cost type in current month
-      const filteredExpenses = expenseData.filter(row => {
-        const rowCostType = row["Cost Type"] || "";
-        const rowMonth = row["Month"] || "";
-        const rowYear = row["Year"] || "";
-        return rowCostType === costType && rowMonth === currentMonth && rowYear === currentYear;
-      });
-      
-      setExpenses(filteredExpenses);
-      const total = filteredExpenses.reduce((sum, item) => sum + parseFloat(item["Amount"] || "0"), 0);
-      setTotalAmount(total);
-      setLoading(false);
+      try {
+        const currentDate = new Date();
+        const currentMonth = currentDate.toLocaleString('default', { month: 'short' });
+        const currentYear = currentDate.getFullYear();
+        
+        const response = await apiService.getFinancialData(currentYear, currentMonth);
+        const { expenseBreakdown } = response;
+        
+        // Filter expenses for the selected cost type
+        const filteredExpenses = expenseBreakdown.filter((item: any) => 
+          item.category === costType
+        );
+        
+        setExpenses(filteredExpenses);
+        const total = filteredExpenses.reduce((sum: number, item: any) => sum + (item.amount || 0), 0);
+        setTotalAmount(total);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error loading expense details:', error);
+        setLoading(false);
+      }
     }
     
     loadExpenseDetails();

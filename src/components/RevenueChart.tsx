@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { fetchSheetData } from "../utils/fetchSheet";
+import { apiService } from "../services/api";
 import { DateFilter } from "./DateFilter";
 
 const COLORS = ['#8B5CF6', '#3B82F6', '#10B981', '#F59E0B', '#EF4444'];
@@ -20,84 +20,37 @@ export function RevenueChart() {
 
   useEffect(() => {
     async function loadData() {
-      const revenueData = await fetchSheetData("Net Sale");
-      
-      // Filter data based on selected year and month
-      let filteredData = revenueData.filter(row => {
-        const rowYear = row["Year"] || "";
-        const rowMonth = row["Month"] || "";
+      try {
+        const response = await apiService.getFinancialData(parseInt(selectedYear), selectedMonth);
+        const { financialData } = response;
         
-        if (selectedMonth) {
-          return rowYear === selectedYear && rowMonth === selectedMonth;
-        } else {
-          return rowYear === selectedYear;
-        }
-      });
-
-      // Process data for charts
-      const processedData = filteredData.map(item => {
-        const cashInReport = parseFloat(item["Cash in Report"] || "0");
-        const card = parseFloat(item["Card"] || "0");
-        const dd = parseFloat(item["DD"] || "0");
-        const ue = parseFloat(item["UE"] || "0");
-        const gh = parseFloat(item["GH"] || "0");
-        const cn = parseFloat(item["CN"] || "0");
-        const catering = parseFloat(item["Catering"] || "0");
-        const otherCash = parseFloat(item["Other Cash"] || "0");
-        const foodja = parseFloat(item["Foodja"] || "0");
-        const zelle = parseFloat(item["Zelle"] || "0");
-        const ezCater = parseFloat(item["Ez Cater"] || "0");
-        const relish = parseFloat(item["Relish"] || "0");
-        const waiterCom = parseFloat(item["waiter.com"] || "0");
-        
-        const totalRev = Math.round(cashInReport + card + dd + ue + gh + cn + catering + otherCash + foodja + zelle + ezCater + relish + waiterCom);
-
-        // Net Income calculation
-        const card2 = parseFloat(item["Card2"] || "0");
-        const dd2 = parseFloat(item["DD2"] || "0");
-        const ue2 = parseFloat(item["UE2"] || "0");
-        const gh2 = parseFloat(item["GH2"] || "0");
-        const catering2 = parseFloat(item["Catering"] || "0");
-        const otherCash2 = parseFloat(item["Other Cash"] || "0");
-        const foodja2 = parseFloat(item["Foodja2"] || "0");
-        const ezCater2 = parseFloat(item["EzCater2"] || "0");
-        const relish2 = parseFloat(item["Relish2"] || "0");
-        const waiterCom2 = parseFloat(item["waiter.com2"] || "0");
-        const cashInReport2 = parseFloat(item["Cash in Report"] || "0");
-
-        const netInc = Math.round(card2 + dd2 + ue2 + gh2 + catering2 + otherCash2 + foodja2 + ezCater2 + relish2 + waiterCom2 + cashInReport2);
-
-        return {
-          date: item["Column 1"] || "Unknown Date",
-          revenue: totalRev,
-          netIncome: netInc,
+        // Process API data for charts
+        const processedData = financialData.map((item: any) => ({
+          date: `${item.month} ${item.year}`,
+          revenue: item.revenue || 0,
+          netIncome: item.netProfit || 0,
           details: {
-            "Cash in Report": cashInReport,
-            "Card": card,
-            "DD": dd,
-            "UE": ue,
-            "GH": gh,
-            "CN": cn,
-            "Catering": catering,
-            "Other Cash": otherCash,
-            "Foodja": foodja,
-            "Zelle": zelle,
-            "Ez Cater": ezCater,
-            "Relish": relish,
-            "waiter.com": waiterCom
+            "Revenue": item.revenue || 0
           },
           netIncomeDetails: {
-            "Card2": card2,
-            "DD2": dd2,
-            "UE2": ue2,
-            "GH2": gh2,
-            "Catering": catering2,
-            "Other Cash": otherCash2,
-            "Foodja2": foodja2,
-            "EzCater2": ezCater2,
-            "Relish2": relish2,
-            "waiter.com2": waiterCom2,
-            "Cash in Report": cashInReport2
+            "Net Profit": item.netProfit || 0
+          }
+        }));
+
+        setData(processedData);
+        
+        // Calculate totals
+        const totalRev = processedData.reduce((sum, item) => sum + item.revenue, 0);
+        const totalNetIncome = processedData.reduce((sum, item) => sum + item.netIncome, 0);
+        
+        setTotalRevenue(totalRev);
+        setNetIncome(totalNetIncome);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error loading revenue data:', error);
+        setLoading(false);
+      }
+    }
           }
         };
       });

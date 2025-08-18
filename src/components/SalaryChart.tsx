@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { fetchSheetData } from "../utils/fetchSheet";
+import { apiService } from "../services/api";
 import { DateFilter } from "./DateFilter";
 
 const COLORS = ['#8B5CF6', '#3B82F6', '#10B981', '#F59E0B', '#EF4444'];
@@ -17,61 +17,46 @@ export function SalaryChart() {
 
   useEffect(() => {
     async function loadData() {
-      const salaryData = await fetchSheetData("Salaries");
-      
-      // Get target month and year based on selectedMonth (current/previous) and selectedYear
-      let targetMonth, targetYear;
-      
-      if (selectedMonth === 'current') {
-        targetMonth = selectedMonthFilter;
-        targetYear = selectedYear;
-      } else {
-        // Previous month logic - but we'll use the selected year and month filter
-        const currentDate = new Date();
-        const previousMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
-        targetMonth = previousMonth.toLocaleString('default', { month: 'short' });
-        targetYear = previousMonth.getFullYear().toString();
-      }
-
-      // Filter data for target month
-      const targetMonthData = salaryData.filter(row => {
-        const rowMonth = row["Month"] || "";
-        const rowYear = row["Year"] || "";
-        return rowMonth === targetMonth && rowYear === targetYear;
-      });
-      
-      // Group salaries by Resource Name (Employee)
-      const salaryByEmployee: { [key: string]: number } = {};
-      
-      targetMonthData.forEach(item => {
-        const employee = item["Resource Name"] || "Unknown";
-        const amount = Math.round(parseFloat(item["Amount"] || "0"));
+      try {
+        const response = await apiService.getFinancialData(parseInt(selectedYear), selectedMonthFilter);
+        const { salaryBreakdown } = response;
         
-        if (salaryByEmployee[employee]) {
-          salaryByEmployee[employee] += amount;
-        } else {
-          salaryByEmployee[employee] = amount;
-        }
-      });
-      
-      const chartData = Object.entries(salaryByEmployee).map(([employee, amount]) => ({
-        employee: employee,
-        salary: Math.round(amount),
-        percentage: 0,
-      }));
-      
-      const total = Math.round(chartData.reduce((sum, item) => sum + item.salary, 0));
-      const avg = Math.round(total / chartData.length);
-      const updatedData = chartData.map(item => ({
-        ...item,
-        percentage: total > 0 ? Math.round((item.salary / total) * 100) : 0
-      }));
-      
-      setData(updatedData);
-      setTotalSalaries(total);
-      setAverageSalary(avg);
-      setHighestPaid(updatedData.reduce((max, item) => item.salary > max.salary ? item : max).employee);
-      setLoading(false);
+        // Group salaries by employee
+        const salaryByEmployee: { [key: string]: number } = {};
+        
+        salaryBreakdown.forEach((item: any) => {
+          const employee = item.employee || "Unknown";
+          const amount = item.amount || 0;
+          
+          if (salaryByEmployee[employee]) {
+            salaryByEmployee[employee] += amount;
+          } else {
+            salaryByEmployee[employee] = amount;
+          }
+        });
+        
+        const chartData = Object.entries(salaryByEmployee).map(([employee, amount]) => ({
+          employee: employee,
+          salary: Math.round(amount),
+          percentage: 0,
+        }));
+        
+        const total = Math.round(chartData.reduce((sum, item) => sum + item.salary, 0));
+        const avg = chartData.length > 0 ? Math.round(total / chartData.length) : 0;
+        const updatedData = chartData.map(item => ({
+          ...item,
+          percentage: total > 0 ? Math.round((item.salary / total) * 100) : 0
+        }));
+        
+        setData(updatedData);
+        setTotalSalaries(total);
+        setAverageSalary(avg);
+        setHighestPaid(updatedData.length > 0 ? updatedData.reduce((max, item) => item.salary > max.salary ? item : max).employee : "N/A");
+        setLoading(false);
+      } catch (error) {
+        console.error('Error loading salary data:', error);
+        setLoading(false);
+      }
     }
     loadData();
   }, [selectedMonth, selectedYear, selectedMonthFilter]);

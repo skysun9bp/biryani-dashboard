@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { fetchSheetData } from "../utils/fetchSheet";
+import { apiService } from "../services/api";
 
 export function ExportButton() {
   const [isExporting, setIsExporting] = useState(false);
@@ -10,41 +10,21 @@ export function ExportButton() {
     setExportStatus("Preparing data...");
     
     try {
-      // Fetch all data
-      const revenueData = await fetchSheetData("Net Sale");
-      const expenseData = await fetchSheetData("Expenses");
-      const salaryData = await fetchSheetData("Salaries");
+      // Fetch all data from API
+      const currentDate = new Date();
+      const currentYear = currentDate.getFullYear();
+      const currentMonth = currentDate.toLocaleString('default', { month: 'short' });
+      
+      const response = await apiService.getFinancialData(currentYear, currentMonth);
+      const { financialData, expenseBreakdown, salaryBreakdown } = response;
       
       setExportStatus("Generating CSV...");
       
-      // Calculate summary data
-      const totalRevenue = revenueData.reduce((sum, row) => {
-        const cashInReport = parseFloat(row["Cash in Report"] || "0");
-        const card = parseFloat(row["Card"] || "0");
-        const dd = parseFloat(row["DD"] || "0");
-        const ue = parseFloat(row["UE"] || "0");
-        const gh = parseFloat(row["GH"] || "0");
-        const cn = parseFloat(row["CN"] || "0");
-        const catering = parseFloat(row["Catering"] || "0");
-        const otherCash = parseFloat(row["Other Cash"] || "0");
-        const foodja = parseFloat(row["Foodja"] || "0");
-        const zelle = parseFloat(row["Zelle"] || "0");
-        const ezCater = parseFloat(row["Ez Cater"] || "0");
-        const relish = parseFloat(row["Relish"] || "0");
-        const waiterCom = parseFloat(row["waiter.com"] || "0");
-        
-        return sum + cashInReport + card + dd + ue + gh + cn + catering + otherCash + foodja + zelle + ezCater + relish + waiterCom;
-      }, 0);
-      
-      const totalExpenses = expenseData.reduce((sum, row) => {
-        return sum + parseFloat(row["Amount"] || "0");
-      }, 0);
-      
-      const totalSalaries = salaryData.reduce((sum, row) => {
-        return sum + parseFloat(row["Amount"] || "0");
-      }, 0);
-      
-      const netProfit = totalRevenue - totalExpenses - totalSalaries;
+      // Calculate summary data from API response
+      const totalRevenue = financialData.reduce((sum: number, item: any) => sum + (item.revenue || 0), 0);
+      const totalExpenses = financialData.reduce((sum: number, item: any) => sum + (item.expenses || 0), 0);
+      const totalSalaries = financialData.reduce((sum: number, item: any) => sum + (item.salaries || 0), 0);
+      const netProfit = financialData.reduce((sum: number, item: any) => sum + (item.netProfit || 0), 0);
       
       // Create CSV content
       let csvContent = "data:text/csv;charset=utf-8,";

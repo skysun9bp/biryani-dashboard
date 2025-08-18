@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
-import { fetchSheetData } from "../utils/fetchSheet";
+import { apiService } from "../services/api";
 import { ExpenseDetails } from "./ExpenseDetails";
 import { DateFilter } from "./DateFilter";
 
@@ -39,84 +39,65 @@ export function ExpenseChart() {
 
   useEffect(() => {
     async function loadData() {
-      const expenseData = await fetchSheetData("Expenses");
-      const salaryData = await fetchSheetData("Salaries");
-      
-      // Filter expense data based on selected year and month
-      let filteredExpenseData = expenseData.filter(row => {
-        const rowYear = row["Year"] || "";
-        const rowMonth = row["Month"] || "";
+      try {
+        const response = await apiService.getFinancialData(parseInt(selectedYear), selectedMonth);
+        const { expenseBreakdown, salaryBreakdown } = response;
         
-        if (selectedMonth) {
-          return rowYear === selectedYear && rowMonth === selectedMonth;
-        } else {
-          return rowYear === selectedYear;
-        }
-      });
-
-      // Filter salary data based on selected year and month
-      let filteredSalaryData = salaryData.filter(row => {
-        const rowYear = row["Year"] || "";
-        const rowMonth = row["Month"] || "";
+        // Group expenses by category
+        const expenseByCategory: { [key: string]: number } = {};
         
-        if (selectedMonth) {
-          return rowYear === selectedYear && rowMonth === selectedMonth;
-        } else {
-          return rowYear === selectedYear;
-        }
-      });
+        expenseBreakdown.forEach((item: any) => {
+          const category = item.category || "Unknown";
+          const amount = item.amount || 0;
+          
+          if (expenseByCategory[category]) {
+            expenseByCategory[category] += amount;
+          } else {
+            expenseByCategory[category] = amount;
+          }
+        });
 
-      // Group expenses by Cost Type
-      const expenseByCostType: { [key: string]: number } = {};
-      
-      filteredExpenseData.forEach(item => {
-        const costType = item["Cost Type"] || "Unknown";
-        const amount = parseFloat(item["Amount"] || "0");
+        // Add salaries as a separate category
+        const totalSalaries = salaryBreakdown.reduce((sum: number, item: any) => {
+          return sum + (item.amount || 0);
+        }, 0);
         
-        if (expenseByCostType[costType]) {
-          expenseByCostType[costType] += amount;
-        } else {
-          expenseByCostType[costType] = amount;
+        if (totalSalaries > 0) {
+          expenseByCategory["Salaries"] = totalSalaries;
         }
-      });
 
-      // Add salaries as a separate category
-      const totalSalaries = Math.round(filteredSalaryData.reduce((sum, item) => {
-        return sum + parseFloat(item["Amount"] || "0");
-      }, 0));
-      
-      if (totalSalaries > 0) {
-        expenseByCostType["Salaries"] = totalSalaries;
+        // Check for missing expected categories
+        const foundCategories = Object.keys(expenseByCategory);
+        const missing = EXPECTED_EXPENSE_CATEGORIES.filter(category => 
+          !foundCategories.some(found => 
+            found.toLowerCase().includes(category.toLowerCase()) ||
+            category.toLowerCase().includes(found.toLowerCase())
+          )
+        );
+        setMissingCategories(missing);
+        
+        // Convert to array and sort by descending amount
+        const chartData = Object.entries(expenseByCategory)
+          .map(([category, amount]) => ({
+            costType: category,
+            amount: Math.round(amount),
+            percentage: 0,
+          }))
+          .sort((a, b) => b.amount - a.amount); // Sort by descending amount
+        
+        const total = Math.round(chartData.reduce((sum, item) => sum + item.amount, 0));
+        const updatedData = chartData.map(item => ({
+          ...item,
+          percentage: total > 0 ? Math.round((item.amount / total) * 100) : 0
+        }));
+        
+        setData(updatedData);
+        setTotalExpenses(total);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error loading expense data:', error);
+        setLoading(false);
       }
-
-      // Check for missing expected categories
-      const foundCategories = Object.keys(expenseByCostType);
-      const missing = EXPECTED_EXPENSE_CATEGORIES.filter(category => 
-        !foundCategories.some(found => 
-          found.toLowerCase().includes(category.toLowerCase()) ||
-          category.toLowerCase().includes(found.toLowerCase())
-        )
-      );
-      setMissingCategories(missing);
-      
-      // Convert to array and sort by descending amount
-      const chartData = Object.entries(expenseByCostType)
-        .map(([costType, amount]) => ({
-          costType: costType,
-          amount: Math.round(amount),
-          percentage: 0,
-        }))
-        .sort((a, b) => b.amount - a.amount); // Sort by descending amount
-      
-      const total = Math.round(chartData.reduce((sum, item) => sum + item.amount, 0));
-      const updatedData = chartData.map(item => ({
-        ...item,
-        percentage: total > 0 ? Math.round((item.amount / total) * 100) : 0
-      }));
-      
-      setData(updatedData);
-      setTotalExpenses(total);
-      setLoading(false);
     }
     loadData();
   }, [selectedYear, selectedMonth]);
