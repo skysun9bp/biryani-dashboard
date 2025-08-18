@@ -10,9 +10,6 @@ export function RevenueChart() {
   const [loading, setLoading] = useState(true);
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [netIncome, setNetIncome] = useState(0);
-  const [comparisonMode, setComparisonMode] = useState<'current' | 'yoy' | 'qoq'>('current');
-  const [comparisonData, setComparisonData] = useState<any>(null);
-  const [timePeriod, setTimePeriod] = useState<'month' | 'quarter' | 'year'>('month');
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedDateDetails, setSelectedDateDetails] = useState<any>(null);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
@@ -51,18 +48,7 @@ export function RevenueChart() {
         setLoading(false);
       }
     }
-          }
-        };
-      });
 
-      const totalRev = Math.round(processedData.reduce((sum, item) => sum + item.revenue, 0));
-      const totalNetInc = Math.round(processedData.reduce((sum, item) => sum + item.netIncome, 0));
-
-      setData(processedData);
-      setTotalRevenue(totalRev);
-      setNetIncome(totalNetInc);
-      setLoading(false);
-    }
     loadData();
   }, [selectedYear, selectedMonth]);
 
@@ -148,7 +134,7 @@ export function RevenueChart() {
         
         <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-xl border border-purple-200">
           <div className="flex items-center space-x-2 mb-2">
-            <span className="text-purple-600">📊</span>
+            <span className="text-purple-600">📈</span>
             <span className="text-sm font-medium text-purple-800">Net Income</span>
           </div>
           <div className="text-xl font-bold text-purple-900">${netIncome.toLocaleString()}</div>
@@ -159,26 +145,13 @@ export function RevenueChart() {
       </div>
 
       {/* Chart */}
-      <div className="bg-gray-50 rounded-xl p-4">
-        <h4 className="text-lg font-semibold text-gray-900 mb-4 text-center">
-          Revenue vs Net Income - {selectedMonth ? `${selectedMonth} ${selectedYear}` : `${selectedYear}`}
-        </h4>
-        <ResponsiveContainer width="100%" height={300}>
+      <div className="bg-white rounded-xl shadow-lg p-6">
+        <h4 className="text-lg font-semibold text-gray-900 mb-4">Revenue vs Net Income Trend</h4>
+        <ResponsiveContainer width="100%" height={400}>
           <AreaChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-            <XAxis 
-              dataKey="date" 
-              stroke="#6B7280"
-              fontSize={10}
-              angle={-45}
-              textAnchor="end"
-              height={80}
-            />
-            <YAxis 
-              stroke="#6B7280"
-              fontSize={10}
-              tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
-            />
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="date" />
+            <YAxis />
             <Tooltip content={<CustomTooltip />} />
             <Area 
               type="monotone" 
@@ -191,7 +164,7 @@ export function RevenueChart() {
             <Area 
               type="monotone" 
               dataKey="netIncome" 
-              stackId="2"
+              stackId="1"
               stroke="#8B5CF6" 
               fill="#8B5CF6" 
               fillOpacity={0.6}
@@ -200,62 +173,42 @@ export function RevenueChart() {
         </ResponsiveContainer>
       </div>
 
-      {/* Date Details Modal */}
+      {/* Selected Date Details */}
       {selectedDateDetails && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold text-gray-900">Revenue Details - {selectedDate}</h3>
-              <button
-                onClick={() => setSelectedDateDetails(null)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                ✕
-              </button>
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <div className="flex justify-between items-start mb-4">
+            <h4 className="text-lg font-semibold text-gray-900">Details for {selectedDate}</h4>
+            <button
+              onClick={() => setSelectedDateDetails(null)}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              ✕
+            </button>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h5 className="font-medium text-gray-900 mb-3">Revenue Breakdown</h5>
+              {Object.entries(selectedDateDetails.details).map(([key, value]: [string, any]) => (
+                <div key={key} className="flex justify-between py-2 border-b border-gray-100">
+                  <span className="text-gray-600">{key}</span>
+                  <span className="font-medium text-green-600">${value.toLocaleString()}</span>
+                </div>
+              ))}
             </div>
             
-            <div className="space-y-4">
-              <div>
-                <h4 className="font-semibold text-green-600 mb-2">Total Revenue: ${selectedDateDetails.revenue.toLocaleString()}</h4>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  {Object.entries(selectedDateDetails.details).map(([key, value]: [string, any]) => (
-                    <div key={key} className="flex justify-between">
-                      <span className="text-gray-600">{key}:</span>
-                      <span className="font-medium">${value.toLocaleString()}</span>
-                    </div>
-                  ))}
+            <div>
+              <h5 className="font-medium text-gray-900 mb-3">Net Income Breakdown</h5>
+              {Object.entries(selectedDateDetails.netIncomeDetails).map(([key, value]: [string, any]) => (
+                <div key={key} className="flex justify-between py-2 border-b border-gray-100">
+                  <span className="text-gray-600">{key}</span>
+                  <span className="font-medium text-purple-600">${value.toLocaleString()}</span>
                 </div>
-              </div>
-              
-              <div>
-                <h4 className="font-semibold text-purple-600 mb-2">Net Income: ${selectedDateDetails.netIncome.toLocaleString()}</h4>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  {Object.entries(selectedDateDetails.netIncomeDetails).map(([key, value]: [string, any]) => (
-                    <div key={key} className="flex justify-between">
-                      <span className="text-gray-600">{key}:</span>
-                      <span className="font-medium">${value.toLocaleString()}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
       )}
-
-      {/* Fixed Help Text */}
-      <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
-        <div className="flex items-start space-x-3">
-          <span className="text-yellow-600 text-xl">⚠️</span>
-          <div>
-            <h4 className="font-semibold text-yellow-900 mb-1">Important Note</h4>
-            <p className="text-sm text-yellow-800">
-              <strong>Net Income includes Sales Tax</strong> that needs to be deducted for accurate profit calculation. 
-              The Net Income calculation uses Card2, DD2, UE2, GH2, Catering, Other Cash, Foodja2, EzCater2, Relish2, waiter.com2, and Cash in Report columns.
-            </p>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
