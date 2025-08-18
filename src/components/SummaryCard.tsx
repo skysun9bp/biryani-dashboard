@@ -43,8 +43,16 @@ export function SummaryCard({ selectedYear, selectedMonth, onYearChange, onMonth
             .reduce((sum: number, item: any) => sum + item.amount, 0);
           setCCFees(ccFeesTotal);
 
-          const commissionTotal = expenseBreakdown
-            .filter((item: any) => item.category.toLowerCase().includes('commission'))
+          // Calculate commissions as sum of all delivery platform fees
+          const commissionTotal = feeBreakdown
+            .filter((item: any) => 
+              item.category === 'DD Fees' || 
+              item.category === 'UE Fees' || 
+              item.category === 'GH Fees' || 
+              item.category === 'Foodja Fees' || 
+              item.category === 'EzCater Fees' || 
+              item.category === 'Relish Fees'
+            )
             .reduce((sum: number, item: any) => sum + item.amount, 0);
           setCommissionFees(commissionTotal);
         }
