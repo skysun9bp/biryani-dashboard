@@ -25,31 +25,30 @@ export function SummaryCard({ selectedYear, selectedMonth, onYearChange, onMonth
     async function loadData() {
       try {
         const response = await apiService.getFinancialData(selectedYear, selectedMonth);
-        const { financialData, expenseBreakdown, salaryBreakdown } = response;
-        
-        // Calculate totals from the API data
-        const currentMonthData = financialData.find((item: any) => 
+        const { financialData, expenseBreakdown, salaryBreakdown, feeBreakdown } = response;
+
+        const currentMonthData = financialData.find((item: any) =>
           item.month === selectedMonth && item.year === selectedYear
-        ) || financialData[0]; // Fallback to first item if current month not found
-        
+        ) || financialData[0];
+
         if (currentMonthData) {
           setRevenue(currentMonthData.revenue || 0);
           setExpenses(currentMonthData.expenses || 0);
           setSalaries(currentMonthData.salaries || 0);
           setNetProfit(currentMonthData.netProfit || 0);
-          
-          // Calculate fees from expense breakdown
-          const ccFeesTotal = expenseBreakdown
-            .filter((item: any) => item.category.toLowerCase().includes('credit') || item.category.toLowerCase().includes('card'))
+
+          // Calculate fees from the new feeBreakdown
+          const ccFeesTotal = feeBreakdown
+            .filter((item: any) => item.category === 'Credit Card Fees')
             .reduce((sum: number, item: any) => sum + item.amount, 0);
           setCCFees(ccFeesTotal);
-          
+
           const commissionTotal = expenseBreakdown
             .filter((item: any) => item.category.toLowerCase().includes('commission'))
             .reduce((sum: number, item: any) => sum + item.amount, 0);
           setCommissionFees(commissionTotal);
         }
-        
+
         setLoading(false);
         setLastUpdated(new Date().toLocaleString());
       } catch (error) {

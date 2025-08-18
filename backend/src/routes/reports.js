@@ -79,11 +79,13 @@ router.get('/financial-data', async (req, res) => {
     const financialData = processFinancialData(revenueData, expenseData, salaryData);
     const expenseBreakdown = processExpenseBreakdown(expenseData);
     const salaryBreakdown = processSalaryBreakdown(salaryData);
+    const feeBreakdown = processFeeBreakdown(revenueData);
 
     res.json({
       financialData,
       expenseBreakdown,
-      salaryBreakdown
+      salaryBreakdown,
+      feeBreakdown
     });
 
   } catch (error) {
@@ -106,7 +108,14 @@ function processFinancialData(revenueData, expenseData, salaryData) {
         revenue: 0,
         expenses: 0,
         salaries: 0,
-        netProfit: 0
+        netProfit: 0,
+        ccFees: 0,
+        ddFees: 0,
+        ueFees: 0,
+        ghFees: 0,
+        foodjaFees: 0,
+        ezCaterFees: 0,
+        relishFees: 0
       };
     }
 
@@ -125,6 +134,15 @@ function processFinancialData(revenueData, expenseData, salaryData) {
       (entry.ezCater || 0) +
       (entry.relish || 0) +
       (entry.waiterCom || 0);
+
+    // Add fees
+    monthlyData[key].ccFees += (entry.ccFees || 0);
+    monthlyData[key].ddFees += (entry.ddFees || 0);
+    monthlyData[key].ueFees += (entry.ueFees || 0);
+    monthlyData[key].ghFees += (entry.ghFees || 0);
+    monthlyData[key].foodjaFees += (entry.foodjaFees || 0);
+    monthlyData[key].ezCaterFees += (entry.ezCaterFees || 0);
+    monthlyData[key].relishFees += (entry.relishFees || 0);
   });
 
   // Process expense data
@@ -137,7 +155,14 @@ function processFinancialData(revenueData, expenseData, salaryData) {
         revenue: 0,
         expenses: 0,
         salaries: 0,
-        netProfit: 0
+        netProfit: 0,
+        ccFees: 0,
+        ddFees: 0,
+        ueFees: 0,
+        ghFees: 0,
+        foodjaFees: 0,
+        ezCaterFees: 0,
+        relishFees: 0
       };
     }
     monthlyData[key].expenses += entry.amount || 0;
@@ -153,7 +178,14 @@ function processFinancialData(revenueData, expenseData, salaryData) {
         revenue: 0,
         expenses: 0,
         salaries: 0,
-        netProfit: 0
+        netProfit: 0,
+        ccFees: 0,
+        ddFees: 0,
+        ueFees: 0,
+        ghFees: 0,
+        foodjaFees: 0,
+        ezCaterFees: 0,
+        relishFees: 0
       };
     }
     monthlyData[key].salaries += entry.amount || 0;
@@ -194,6 +226,40 @@ function processExpenseBreakdown(expenseData) {
     amount,
     percentage: total > 0 ? Math.round((amount / total) * 100) : 0
   })).sort((a, b) => b.amount - a.amount);
+}
+
+// Process fee breakdown from revenue data
+function processFeeBreakdown(revenueData) {
+  const breakdown = {
+    'Credit Card Fees': 0,
+    'DD Fees': 0,
+    'UE Fees': 0,
+    'GH Fees': 0,
+    'Foodja Fees': 0,
+    'EzCater Fees': 0,
+    'Relish Fees': 0
+  };
+
+  revenueData.forEach(entry => {
+    breakdown['Credit Card Fees'] += (entry.ccFees || 0);
+    breakdown['DD Fees'] += (entry.ddFees || 0);
+    breakdown['UE Fees'] += (entry.ueFees || 0);
+    breakdown['GH Fees'] += (entry.ghFees || 0);
+    breakdown['Foodja Fees'] += (entry.foodjaFees || 0);
+    breakdown['EzCater Fees'] += (entry.ezCaterFees || 0);
+    breakdown['Relish Fees'] += (entry.relishFees || 0);
+  });
+
+  const total = Object.values(breakdown).reduce((sum, amount) => sum + amount, 0);
+
+  return Object.entries(breakdown)
+    .filter(([_, amount]) => amount > 0) // Only include non-zero fees
+    .map(([category, amount]) => ({
+      category,
+      amount,
+      percentage: total > 0 ? Math.round((amount / total) * 100) : 0
+    }))
+    .sort((a, b) => b.amount - a.amount);
 }
 
 // Process salary breakdown
