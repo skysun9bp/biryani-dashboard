@@ -130,21 +130,21 @@ function processFinancialData(revenueData, expenseData, salaryData) {
     // Calculate total revenue
     monthlyData[key].revenue += 
       (entry.cashInReport || 0) +
-      (entry.card2 || 0) +
-      (entry.dd2 || 0) +
-      (entry.ue2 || 0) +
-      (entry.gh2 || 0) +
-      (entry.cn2 || 0) +
+      (entry.card || 0) +
+      (entry.dd || 0) +
+      (entry.ue || 0) +
+      (entry.gh || 0) +
+      (entry.cn || 0) +
       (entry.catering || 0) +
       (entry.otherCash || 0) +
-      (entry.foodja2 || 0) +
+      (entry.foodja || 0) +
       (entry.zelle || 0) +
-      (entry.ezCater2 || 0) +
-      (entry.relish2 || 0) +
+      (entry.ezCater || 0) +
+      (entry.relish || 0) +
       (entry.waiterCom || 0);
 
     // Add fees
-    monthlyData[key].ccFees += (entry.ccFees || 0);
+    monthlyData[key].ccFees += Math.max(0, (entry.card || 0) - (entry.card2 || 0));
     monthlyData[key].ddFees += (entry.ddFees || 0);
     monthlyData[key].ueFees += (entry.ueFees || 0);
     monthlyData[key].ghFees += (entry.ghFees || 0);
@@ -249,7 +249,7 @@ function processFeeBreakdown(revenueData) {
   };
 
   revenueData.forEach(entry => {
-    breakdown['Credit Card Fees'] += (entry.ccFees || 0);
+    breakdown['Credit Card Fees'] += Math.max(0, (entry.card || 0) - (entry.card2 || 0));
     breakdown['DD Fees'] += (entry.ddFees || 0);
     breakdown['UE Fees'] += (entry.ueFees || 0);
     breakdown['GH Fees'] += (entry.ghFees || 0);
@@ -261,7 +261,7 @@ function processFeeBreakdown(revenueData) {
   const total = Object.values(breakdown).reduce((sum, amount) => sum + amount, 0);
 
   return Object.entries(breakdown)
-    .filter(([_, amount]) => amount > 0) // Only include non-zero fees
+    .filter(([_, amount]) => amount > 0)
     .map(([category, amount]) => ({
       category,
       amount,
