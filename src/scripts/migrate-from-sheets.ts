@@ -1,5 +1,5 @@
 import { google } from 'googleapis';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../../backend/node_modules/@prisma/client';
 import dotenv from 'dotenv';
 
 // Load environment variables
@@ -68,13 +68,14 @@ async function fetchSheetData(sheetName: string): Promise<any[]> {
 
 // Helper function to parse date
 function parseDate(dateStr: string): Date | null {
-  if (!dateStr) return null;
+  if (!dateStr || dateStr.trim() === '') return null;
   
   // Try different date formats
   const dateFormats = [
     /^\d{1,2}\/\d{1,2}\/\d{4}$/, // MM/DD/YYYY
     /^\d{4}-\d{1,2}-\d{1,2}$/,   // YYYY-MM-DD
     /^\d{1,2}-\d{1,2}-\d{4}$/,   // MM-DD-YYYY
+    /^\d{1,2}-\w{3}-\d{2}$/,     // DD-MMM-YY (like 23-Nov-23)
   ];
 
   for (const format of dateFormats) {
@@ -86,12 +87,14 @@ function parseDate(dateStr: string): Date | null {
     }
   }
 
-  // Try parsing as Excel date number
+  // Try parsing as Excel date number (Google Sheets sometimes returns these)
   const excelDate = parseFloat(dateStr);
   if (!isNaN(excelDate) && excelDate > 1) {
     // Excel dates are days since 1900-01-01
-    const date = new Date((excelDate - 25569) * 86400 * 1000);
-    if (!isNaN(date.getTime())) {
+    // Add 25569 to convert from Excel epoch to Unix epoch
+    const unixTimestamp = (excelDate - 25569) * 86400 * 1000;
+    const date = new Date(unixTimestamp);
+    if (!isNaN(date.getTime()) && date.getFullYear() > 1900) {
       return date;
     }
   }
@@ -146,7 +149,7 @@ async function migrateRevenueData() {
       }
 
       // Create revenue entry
-      const revenueEntry = await prisma.revenueEntry.create({
+      await prisma.revenueEntry.create({
         data: {
           date: date,
           month: getMonthAbbr(date),
@@ -167,16 +170,16 @@ async function migrateRevenueData() {
           ghFees: parseNumber(row['GH Fees'] || '0'),
           catering: parseNumber(row['Catering'] || '0'),
           otherCash: parseNumber(row['Other Cash'] || '0'),
-          foodja: parseNumber(row['foodja'] || '0'),
-          foodja2: parseNumber(row['foodja2'] || '0'),
-          foodjaFees: parseNumber(row['foodja fees'] || '0'),
-          zelle: parseNumber(row['zelle'] || '0'),
-          relish: parseNumber(row['relish'] || '0'),
-          relish2: parseNumber(row['relish2'] || '0'),
-          relishFees: parseNumber(row['relish fees'] || '0'),
-          ezCater: parseNumber(row['Ezcater'] || '0'),
-          ezCater2: parseNumber(row['Ezcater2'] || '0'),
-          ezCaterFees: parseNumber(row['Ezcater fees'] || '0'),
+          foodja: parseNumber(row['Foodja'] || '0'),
+          foodja2: parseNumber(row['Foodja2'] || '0'),
+          foodjaFees: parseNumber(row['Foodja Fees'] || '0'),
+          zelle: parseNumber(row['Zelle'] || '0'),
+          relish: parseNumber(row['Relish'] || '0'),
+          relish2: parseNumber(row['Relish2'] || '0'),
+          relishFees: parseNumber(row['Relish Fees'] || '0'),
+          ezCater: parseNumber(row['Ez Cater'] || '0'),
+          ezCater2: parseNumber(row['Ez Cater2'] || '0'),
+          ezCaterFees: parseNumber(row['EzCater Fees'] || '0'),
           waiterCom: parseNumber(row['waiter.com'] || '0'),
           ccFees: parseNumber(row['CC Fees'] || '0'),
           createdBy: 1 // Default to admin user
@@ -228,7 +231,7 @@ async function migrateExpenseData() {
       }
 
       // Create expense entry
-      const expenseEntry = await prisma.expenseEntry.create({
+      await prisma.expenseEntry.create({
         data: {
           date: date,
           month: getMonthAbbr(date),
@@ -269,34 +272,15 @@ async function migrateSalaryData() {
         continue;
       }
 
-      // Parse actual paid date
-      const actualPaidDate = parseDate(row['Actual Paid Date']);
-
-      // Check if entry already exists
-      const existingEntry = await prisma.salaryEntry.findFirst({
-        where: {
-          date: date,
-          year: date.getFullYear(),
-          month: getMonthAbbr(date),
-          resourceName: row['Resource Name'] || '',
-          amount: parseNumber(row['Amount'] || '0')
-        }
-      });
-
-      if (existingEntry) {
-        console.log(`⏭️  Skipping existing salary entry for ${date.toDateString()}`);
-        continue;
-      }
-
       // Create salary entry
-      const salaryEntry = await prisma.salaryEntry.create({
+      await prisma.salaryEntry.create({
         data: {
           date: date,
           month: getMonthAbbr(date),
           year: date.getFullYear(),
-          resourceName: row['Resource Name'] || 'Unknown Employee',
+          resourceName: row['Resource Name'] || 'Unknown',
           amount: parseNumber(row['Amount'] || '0'),
-          actualPaidDate: actualPaidDate,
+          actualPaidDate: parseDate(row['Actual Paid Date']),
           createdBy: 1 // Default to admin user
         }
       });
@@ -317,13 +301,11 @@ async function runMigration() {
   console.log(`🗄️  Target: Database`);
 
   try {
-    // Test Google Sheets connection
-    console.log('\n🔗 Testing Google Sheets connection...');
-    const testResponse = await sheets.spreadsheets.get({
+    console.log('🔍 Testing Google Sheets connection...');
+    
+    await sheets.spreadsheets.get({
       spreadsheetId: SPREADSHEET_ID,
-      ranges: ['Net Sale!A1:A1']
     });
-    console.log('✅ Google Sheets connection successful');
 
     // Run migrations
     await migrateRevenueData();
