@@ -216,13 +216,22 @@ function processFinancialData(revenueData, expenseData, salaryData) {
   });
 
   // Calculate net profit and sort by date
-  const result = Object.values(monthlyData).map(item => ({
-    ...item,
-    revenue: Math.round(item.revenue),
-    expenses: Math.round(item.expenses),
-    salaries: Math.round(item.salaries),
-    netProfit: Math.round(item.revenue - item.expenses - item.salaries)
-  }));
+  const result = Object.values(monthlyData).map(item => {
+    // Calculate total commission fees (sum of all delivery platform fees)
+    const totalCommissionFees = (item.ddFees || 0) + (item.ueFees || 0) + (item.ghFees || 0) + 
+                               (item.foodjaFees || 0) + (item.ezCaterFees || 0) + (item.relishFees || 0);
+    
+    // Net profit = Revenue - (Expenses + Salaries + CC Fees + Commissions)
+    const netProfit = item.revenue - item.expenses - item.salaries - item.ccFees - totalCommissionFees;
+    
+    return {
+      ...item,
+      revenue: Math.round(item.revenue),
+      expenses: Math.round(item.expenses),
+      salaries: Math.round(item.salaries),
+      netProfit: Math.round(netProfit)
+    };
+  });
 
   // Sort by year and month
   const monthOrder = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
