@@ -143,6 +143,9 @@ function processFinancialData(revenueData, expenseData, salaryData) {
       (entry.relish || 0) +
       (entry.waiterCom || 0);
 
+    // Round revenue to nearest dollar
+    monthlyData[key].revenue = Math.round(monthlyData[key].revenue);
+
     // Add fees
     monthlyData[key].ccFees += Math.max(0, (entry.card || 0) - (entry.card2 || 0));
     monthlyData[key].ddFees += (entry.ddFees || 0);
@@ -151,6 +154,15 @@ function processFinancialData(revenueData, expenseData, salaryData) {
     monthlyData[key].foodjaFees += (entry.foodjaFees || 0);
     monthlyData[key].ezCaterFees += (entry.ezCaterFees || 0);
     monthlyData[key].relishFees += (entry.relishFees || 0);
+
+    // Round all fees to nearest dollar
+    monthlyData[key].ccFees = Math.round(monthlyData[key].ccFees);
+    monthlyData[key].ddFees = Math.round(monthlyData[key].ddFees);
+    monthlyData[key].ueFees = Math.round(monthlyData[key].ueFees);
+    monthlyData[key].ghFees = Math.round(monthlyData[key].ghFees);
+    monthlyData[key].foodjaFees = Math.round(monthlyData[key].foodjaFees);
+    monthlyData[key].ezCaterFees = Math.round(monthlyData[key].ezCaterFees);
+    monthlyData[key].relishFees = Math.round(monthlyData[key].relishFees);
   });
 
   // Process expense data
@@ -174,6 +186,8 @@ function processFinancialData(revenueData, expenseData, salaryData) {
       };
     }
     monthlyData[key].expenses += entry.amount || 0;
+    // Round expenses to nearest dollar
+    monthlyData[key].expenses = Math.round(monthlyData[key].expenses);
   });
 
   // Process salary data
@@ -197,12 +211,17 @@ function processFinancialData(revenueData, expenseData, salaryData) {
       };
     }
     monthlyData[key].salaries += entry.amount || 0;
+    // Round salaries to nearest dollar
+    monthlyData[key].salaries = Math.round(monthlyData[key].salaries);
   });
 
   // Calculate net profit and sort by date
   const result = Object.values(monthlyData).map(item => ({
     ...item,
-    netProfit: item.revenue - item.expenses - item.salaries
+    revenue: Math.round(item.revenue),
+    expenses: Math.round(item.expenses),
+    salaries: Math.round(item.salaries),
+    netProfit: Math.round(item.revenue - item.expenses - item.salaries)
   }));
 
   // Sort by year and month
@@ -231,7 +250,7 @@ function processExpenseBreakdown(expenseData) {
 
   return Object.entries(breakdown).map(([category, amount]) => ({
     category,
-    amount,
+    amount: Math.round(amount),
     percentage: total > 0 ? Math.round((amount / total) * 100) : 0
   })).sort((a, b) => b.amount - a.amount);
 }
@@ -264,7 +283,7 @@ function processFeeBreakdown(revenueData) {
     .filter(([_, amount]) => amount > 0)
     .map(([category, amount]) => ({
       category,
-      amount,
+      amount: Math.round(amount),
       percentage: total > 0 ? Math.round((amount / total) * 100) : 0
     }))
     .sort((a, b) => b.amount - a.amount);
@@ -286,7 +305,7 @@ function processSalaryBreakdown(salaryData) {
 
   return Object.entries(breakdown).map(([employee, amount]) => ({
     employee,
-    amount,
+    amount: Math.round(amount),
     percentage: total > 0 ? Math.round((amount / total) * 100) : 0
   })).sort((a, b) => b.amount - a.amount);
 }
