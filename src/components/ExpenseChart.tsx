@@ -34,7 +34,7 @@ export function ExpenseChart() {
   const [showDetails, setShowDetails] = useState(false);
   const [selectedCostType, setSelectedCostType] = useState<string>("");
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
-  const [selectedMonth, setSelectedMonth] = useState(new Date().toLocaleString('default', { month: 'short' }));
+  const [selectedMonth, setSelectedMonth] = useState(''); // Empty string means all months of current year
   const [missingCategories, setMissingCategories] = useState<string[]>([]);
 
   useEffect(() => {

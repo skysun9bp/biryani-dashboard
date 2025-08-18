@@ -13,7 +13,7 @@ export function SalaryChart() {
   const [averageSalary, setAverageSalary] = useState(0);
   const [selectedMonth, setSelectedMonth] = useState<'current' | 'previous'>('current');
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
-  const [selectedMonthFilter, setSelectedMonthFilter] = useState(new Date().toLocaleString('default', { month: 'short' }));
+  const [selectedMonthFilter, setSelectedMonthFilter] = useState(''); // Empty string means all months of current year
 
   useEffect(() => {
     async function loadData() {

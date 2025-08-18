@@ -20,7 +20,8 @@ function AppContent() {
   const { user, isAuthenticated, isLoading, logout, login } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
-  const [selectedMonth, setSelectedMonth] = useState<string>('');
+  const [selectedMonth, setSelectedMonth] = useState<string>(''); // Empty string means all months for revenue analytics
+  const [summaryMonth, setSummaryMonth] = useState<string>(new Date().toLocaleString('default', { month: 'short' })); // Current month for summary
 
   if (isLoading) {
     return (
@@ -46,9 +47,9 @@ function AppContent() {
           <div className="space-y-6">
             <SummaryCard 
               selectedYear={selectedYear}
-              selectedMonth={selectedMonth}
+              selectedMonth={summaryMonth}
               onYearChange={setSelectedYear}
-              onMonthChange={setSelectedMonth}
+              onMonthChange={setSummaryMonth}
             />
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <RevenueChart 

@@ -13,7 +13,7 @@ export function RevenueChart() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedDateDetails, setSelectedDateDetails] = useState<any>(null);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
-  const [selectedMonth, setSelectedMonth] = useState(new Date().toLocaleString('default', { month: 'short' }));
+  const [selectedMonth, setSelectedMonth] = useState(''); // Empty string means all months of current year
 
   useEffect(() => {
     async function loadData() {
