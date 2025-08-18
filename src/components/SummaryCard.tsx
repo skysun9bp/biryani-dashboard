@@ -4,9 +4,14 @@ import React, { useEffect, useState } from "react";
 import { apiService } from "../services/api";
 import { DateFilter } from "./DateFilter";
 
-interface SummaryCardProps {}
+interface SummaryCardProps {
+  selectedYear: number;
+  selectedMonth: string;
+  onYearChange: (year: number) => void;
+  onMonthChange: (month: string) => void;
+}
 
-export function SummaryCard({}: SummaryCardProps) {
+export function SummaryCard({ selectedYear, selectedMonth, onYearChange, onMonthChange }: SummaryCardProps) {
   const [revenue, setRevenue] = useState(0);
   const [expenses, setExpenses] = useState(0);
   const [salaries, setSalaries] = useState(0);
@@ -15,18 +20,16 @@ export function SummaryCard({}: SummaryCardProps) {
   const [netProfit, setNetProfit] = useState(0);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState("");
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
-  const [selectedMonth, setSelectedMonth] = useState(new Date().toLocaleString('default', { month: 'short' }));
 
   useEffect(() => {
     async function loadData() {
       try {
-        const response = await apiService.getFinancialData(parseInt(selectedYear), selectedMonth);
+        const response = await apiService.getFinancialData(selectedYear, selectedMonth);
         const { financialData, expenseBreakdown, salaryBreakdown } = response;
         
         // Calculate totals from the API data
         const currentMonthData = financialData.find((item: any) => 
-          item.month === selectedMonth && item.year === parseInt(selectedYear)
+          item.month === selectedMonth && item.year === selectedYear
         ) || financialData[0]; // Fallback to first item if current month not found
         
         if (currentMonthData) {
@@ -91,10 +94,10 @@ export function SummaryCard({}: SummaryCardProps) {
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-900">Financial Summary</h2>
         <DateFilter
-          selectedYear={selectedYear}
+          selectedYear={selectedYear.toString()}
           selectedMonth={selectedMonth}
-          onYearChange={setSelectedYear}
-          onMonthChange={setSelectedMonth}
+          onYearChange={(year) => onYearChange(parseInt(year))}
+          onMonthChange={onMonthChange}
         />
       </div>
 
