@@ -12,7 +12,7 @@ import { ExportButton } from './components/ExportButton';
 // Table components will be created later
 import DataEntryPage from './components/DataEntryPage';
 import { ReportsPage } from './components/ReportsPage';
-import DebugInfo from './components/DebugInfo';
+
 
 type TabType = 'dashboard' | 'revenue' | 'expenses' | 'salaries' | 'data-entry' | 'reports';
 
@@ -121,7 +121,6 @@ function AppContent() {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      <DebugInfo />
       <Sidebar 
         activeTab={activeTab} 
         onTabChange={setActiveTab}
