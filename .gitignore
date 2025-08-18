@@ -96,5 +96,11 @@ jspm_packages/
 # TernJS port file
 .tern-port
 
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+prisma/dev.db
+
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test
