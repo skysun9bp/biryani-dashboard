@@ -283,7 +283,8 @@ function processFeeBreakdown(revenueData) {
   };
 
   revenueData.forEach(entry => {
-    breakdown['Credit Card Fees'] += Math.max(0, (entry.card || 0) - (entry.card2 || 0));
+    console.log(`Fee breakdown - Entry ccFees: ${entry.ccFees}, card: ${entry.card}, card2: ${entry.card2}`);
+    breakdown['Credit Card Fees'] += (entry.ccFees || 0);
     breakdown['DD Fees'] += (entry.ddFees || 0);
     breakdown['UE Fees'] += (entry.ueFees || 0);
     breakdown['GH Fees'] += (entry.ghFees || 0);
@@ -291,6 +292,8 @@ function processFeeBreakdown(revenueData) {
     breakdown['EzCater Fees'] += (entry.ezCaterFees || 0);
     breakdown['Relish Fees'] += (entry.relishFees || 0);
   });
+  
+  console.log(`Total CC Fees in feeBreakdown: ${breakdown['Credit Card Fees']}`);
 
   const total = Object.values(breakdown).reduce((sum, amount) => sum + amount, 0);
 
