@@ -143,28 +143,32 @@ function processFinancialData(revenueData, expenseData, salaryData) {
       (entry.relish || 0) +
       (entry.waiterCom || 0);
 
-    // Round revenue to nearest dollar
-    monthlyData[key].revenue = Math.round(monthlyData[key].revenue);
+    // Add CC Fees from the database (sum of daily ccFees)
+    monthlyData[key].ccFees += (entry.ccFees || 0);
 
-    // Add fees - calculate CC Fees dynamically as Card - Card2
-    const ccFeesCalculation = Math.max(0, (entry.card || 0) - (entry.card2 || 0));
-    console.log(`CC Fees calculation for ${entry.date}: Card=${entry.card || 0}, Card2=${entry.card2 || 0}, CC Fees=${ccFeesCalculation}`);
-    monthlyData[key].ccFees += ccFeesCalculation;
+    // Add other fees
     monthlyData[key].ddFees += (entry.ddFees || 0);
     monthlyData[key].ueFees += (entry.ueFees || 0);
     monthlyData[key].ghFees += (entry.ghFees || 0);
     monthlyData[key].foodjaFees += (entry.foodjaFees || 0);
     monthlyData[key].ezCaterFees += (entry.ezCaterFees || 0);
     monthlyData[key].relishFees += (entry.relishFees || 0);
+  });
 
-    // Round all fees to nearest dollar
-    monthlyData[key].ccFees = Math.round(monthlyData[key].ccFees);
-    monthlyData[key].ddFees = Math.round(monthlyData[key].ddFees);
-    monthlyData[key].ueFees = Math.round(monthlyData[key].ueFees);
-    monthlyData[key].ghFees = Math.round(monthlyData[key].ghFees);
-    monthlyData[key].foodjaFees = Math.round(monthlyData[key].foodjaFees);
-    monthlyData[key].ezCaterFees = Math.round(monthlyData[key].ezCaterFees);
-    monthlyData[key].relishFees = Math.round(monthlyData[key].relishFees);
+  // Round all values after processing all revenue entries
+  Object.keys(monthlyData).forEach(key => {
+    const data = monthlyData[key];
+    console.log(`CC Fees for ${data.month} ${data.year}: Total CC Fees=${data.ccFees}`);
+    
+    // Round all values
+    data.revenue = Math.round(data.revenue);
+    data.ccFees = Math.round(data.ccFees);
+    data.ddFees = Math.round(data.ddFees);
+    data.ueFees = Math.round(data.ueFees);
+    data.ghFees = Math.round(data.ghFees);
+    data.foodjaFees = Math.round(data.foodjaFees);
+    data.ezCaterFees = Math.round(data.ezCaterFees);
+    data.relishFees = Math.round(data.relishFees);
   });
 
   // Process expense data
