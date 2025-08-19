@@ -32,30 +32,32 @@ export default function SalaryGrid({ year, month }: SalaryGridProps) {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const response = await apiService.getFinancialData(year, month);
-      const salaryData = response.salaryBreakdown || [];
+      console.log('Loading salary data for:', year, month);
       
-      // Convert to editable format - we'll need to get individual entries
-      // For now, let's create a mock structure
-      const editableData: EditableSalaryEntry[] = [];
+      // Fetch actual salary entries from the database
+      const response = await apiService.getSalaryEntries({ year, month });
+      console.log('Salary API response:', response);
       
-      // This is a simplified version - in a real implementation, you'd fetch individual salary entries
-      salaryData.forEach((item: any) => {
-        for (let i = 0; i < Math.ceil(item.amount / 1000); i++) { // Mock multiple entries
-          editableData.push({
-            id: `mock-${item.employee}-${i}`,
-            date: new Date(year, getMonthIndex(month), i + 1).toISOString().split('T')[0],
-            month: month,
-            year: year,
-            resourceName: item.employee,
-            amount: Math.min(1000, item.amount - (i * 1000)),
-            actualPaidDate: new Date(year, getMonthIndex(month), i + 1).toISOString().split('T')[0],
-            isEditing: false,
-            isNew: false
-          });
-        }
+      const salaryEntries = response?.entries || [];
+      console.log('Salary entries found:', salaryEntries.length);
+      
+      // Convert to editable format
+      const editableData: EditableSalaryEntry[] = salaryEntries.map((item: any) => {
+        console.log('Processing salary item:', item);
+        return {
+          id: item.id,
+          date: item.date ? new Date(item.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+          month: month,
+          year: year,
+          resourceName: item.resourceName || 'Employee',
+          amount: item.amount || 0,
+          actualPaidDate: item.actualPaidDate ? new Date(item.actualPaidDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+          isEditing: false,
+          isNew: false
+        };
       });
       
+      console.log('Processed salary data:', editableData);
       setData(editableData);
     } catch (error) {
       console.error('Error loading salary data:', error);
@@ -75,10 +77,7 @@ export default function SalaryGrid({ year, month }: SalaryGridProps) {
     }
   };
 
-  const getMonthIndex = (month: string): number => {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    return months.indexOf(month);
-  };
+
 
   const calculateTotals = () => {
     const newTotals = {
@@ -115,9 +114,21 @@ export default function SalaryGrid({ year, month }: SalaryGridProps) {
     setData([...data, newRow]);
   };
 
-  const deleteRow = (index: number) => {
-    const newData = data.filter((_, i) => i !== index);
-    setData(newData);
+  const deleteRow = async (index: number) => {
+    const row = data[index];
+    if (row.id && !row.isNew) {
+      try {
+        await apiService.deleteSalaryEntry(row.id);
+        const newData = data.filter((_, i) => i !== index);
+        setData(newData);
+      } catch (error) {
+        console.error('Error deleting row:', error);
+      }
+    } else {
+      // For new rows that haven't been saved yet, just remove from local state
+      const newData = data.filter((_, i) => i !== index);
+      setData(newData);
+    }
   };
 
   const saveRow = async (row: EditableSalaryEntry, index: number) => {

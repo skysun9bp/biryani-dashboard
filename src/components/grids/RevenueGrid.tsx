@@ -42,39 +42,49 @@ export default function RevenueGrid({ year, month }: RevenueGridProps) {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const response = await apiService.getFinancialData(year, month);
-      const revenueData = response.financialData || [];
+      console.log('Loading revenue data for:', year, month);
+      
+      // Fetch actual revenue entries from the database
+      const response = await apiService.getRevenueEntries({ year, month });
+      console.log('Revenue API response:', response);
+      
+      const revenueEntries = response?.entries || [];
+      console.log('Revenue entries found:', revenueEntries.length);
       
       // Convert to editable format
-      const editableData = revenueData.map((item: any) => ({
-        id: item.id,
-        date: item.date || new Date().toISOString().split('T')[0],
-        month: month,
-        year: year,
-        cashInReport: item.cashInReport || 0,
-        card: item.card || 0,
-        dd: item.dd || 0,
-        ue: item.ue || 0,
-        gh: item.gh || 0,
-        cn: item.cn || 0,
-        catering: item.catering || 0,
-        otherCash: item.otherCash || 0,
-        foodja: item.foodja || 0,
-        zelle: item.zelle || 0,
-        ezCater: item.ezCater || 0,
-        relish: item.relish || 0,
-        waiterCom: item.waiterCom || 0,
-        ccFees: item.ccFees || 0,
-        ddFees: item.ddFees || 0,
-        ueFees: item.ueFees || 0,
-        ghFees: item.ghFees || 0,
-        foodjaFees: item.foodjaFees || 0,
-        ezCaterFees: item.ezCaterFees || 0,
-        relishFees: item.relishFees || 0,
-        isEditing: false,
-        isNew: false
-      }));
+      const editableData = revenueEntries.map((item: any) => {
+        console.log('Processing revenue item:', item);
+        return {
+          id: item.id,
+          date: item.date ? new Date(item.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+          month: month,
+          year: year,
+          cashInReport: item.cashInReport || 0,
+          card: item.card || 0,
+          dd: item.dd || 0,
+          ue: item.ue || 0,
+          gh: item.gh || 0,
+          cn: item.cn || 0,
+          catering: item.catering || 0,
+          otherCash: item.otherCash || 0,
+          foodja: item.foodja || 0,
+          zelle: item.zelle || 0,
+          ezCater: item.ezCater || 0,
+          relish: item.relish || 0,
+          waiterCom: item.waiterCom || 0,
+          ccFees: item.ccFees || 0,
+          ddFees: item.ddFees || 0,
+          ueFees: item.ueFees || 0,
+          ghFees: item.ghFees || 0,
+          foodjaFees: item.foodjaFees || 0,
+          ezCaterFees: item.ezCaterFees || 0,
+          relishFees: item.relishFees || 0,
+          isEditing: false,
+          isNew: false
+        };
+      });
       
+      console.log('Processed revenue data:', editableData);
       setData(editableData);
     } catch (error) {
       console.error('Error loading revenue data:', error);
@@ -159,9 +169,21 @@ export default function RevenueGrid({ year, month }: RevenueGridProps) {
     setData([...data, newRow]);
   };
 
-  const deleteRow = (index: number) => {
-    const newData = data.filter((_, i) => i !== index);
-    setData(newData);
+  const deleteRow = async (index: number) => {
+    const row = data[index];
+    if (row.id && !row.isNew) {
+      try {
+        await apiService.deleteRevenueEntry(row.id);
+        const newData = data.filter((_, i) => i !== index);
+        setData(newData);
+      } catch (error) {
+        console.error('Error deleting row:', error);
+      }
+    } else {
+      // For new rows that haven't been saved yet, just remove from local state
+      const newData = data.filter((_, i) => i !== index);
+      setData(newData);
+    }
   };
 
   const saveRow = async (row: EditableRevenueEntry, index: number) => {

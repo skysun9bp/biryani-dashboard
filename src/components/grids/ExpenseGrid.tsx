@@ -32,31 +32,33 @@ export default function ExpenseGrid({ year, month }: ExpenseGridProps) {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const response = await apiService.getFinancialData(year, month);
-      const expenseData = response.expenseBreakdown || [];
+      console.log('Loading expense data for:', year, month);
       
-      // Convert to editable format - we'll need to get individual entries
-      // For now, let's create a mock structure
-      const editableData: EditableExpenseEntry[] = [];
+      // Fetch actual expense entries from the database
+      const response = await apiService.getExpenseEntries({ year, month });
+      console.log('Expense API response:', response);
       
-      // This is a simplified version - in a real implementation, you'd fetch individual expense entries
-      expenseData.forEach((item: any) => {
-        for (let i = 0; i < Math.ceil(item.amount / 1000); i++) { // Mock multiple entries
-          editableData.push({
-            id: `mock-${item.category}-${i}`,
-            date: new Date(year, getMonthIndex(month), i + 1).toISOString().split('T')[0],
-            month: month,
-            year: year,
-            costType: item.category,
-            expenseType: 'General',
-            itemVendor: 'Vendor',
-            amount: Math.min(1000, item.amount - (i * 1000)),
-            isEditing: false,
-            isNew: false
-          });
-        }
+      const expenseEntries = response?.entries || [];
+      console.log('Expense entries found:', expenseEntries.length);
+      
+      // Convert to editable format
+      const editableData: EditableExpenseEntry[] = expenseEntries.map((item: any) => {
+        console.log('Processing expense item:', item);
+        return {
+          id: item.id,
+          date: item.date ? new Date(item.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+          month: month,
+          year: year,
+          costType: item.costType || 'Food costs',
+          expenseType: item.expenseType || 'General',
+          itemVendor: item.itemVendor || '',
+          amount: item.amount || 0,
+          isEditing: false,
+          isNew: false
+        };
       });
       
+      console.log('Processed expense data:', editableData);
       setData(editableData);
     } catch (error) {
       console.error('Error loading expense data:', error);
@@ -76,10 +78,7 @@ export default function ExpenseGrid({ year, month }: ExpenseGridProps) {
     }
   };
 
-  const getMonthIndex = (month: string): number => {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    return months.indexOf(month);
-  };
+
 
   const calculateTotals = () => {
     const newTotals = {
@@ -117,9 +116,21 @@ export default function ExpenseGrid({ year, month }: ExpenseGridProps) {
     setData([...data, newRow]);
   };
 
-  const deleteRow = (index: number) => {
-    const newData = data.filter((_, i) => i !== index);
-    setData(newData);
+  const deleteRow = async (index: number) => {
+    const row = data[index];
+    if (row.id && !row.isNew) {
+      try {
+        await apiService.deleteExpenseEntry(row.id);
+        const newData = data.filter((_, i) => i !== index);
+        setData(newData);
+      } catch (error) {
+        console.error('Error deleting row:', error);
+      }
+    } else {
+      // For new rows that haven't been saved yet, just remove from local state
+      const newData = data.filter((_, i) => i !== index);
+      setData(newData);
+    }
   };
 
   const saveRow = async (row: EditableExpenseEntry, index: number) => {
