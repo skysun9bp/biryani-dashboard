@@ -172,25 +172,33 @@ async function migrateRevenueData() {
           month: getMonthAbbr(date),
           year: date.getFullYear(),
           cashInReport: parseNumber(row['Cash in Report'] || '0'),
+          card2: parseNumber(row['Card2'] || '0'),
           card: parseNumber(row['Card'] || '0'),
           dd: parseNumber(row['DD'] || '0'),
           ue: parseNumber(row['UE'] || '0'),
           gh: parseNumber(row['GH'] || '0'),
           cn: parseNumber(row['CN'] || '0'),
+          dd2: parseNumber(row['DD2'] || '0'),
+          ue2: parseNumber(row['UE2'] || '0'),
+          gh2: parseNumber(row['GH2'] || '0'),
+          cn2: parseNumber(row['CN2'] || '0'),
           catering: parseNumber(row['Catering'] || '0'),
           otherCash: parseNumber(row['Other Cash'] || '0'),
           foodja: parseNumber(row['Foodja'] || '0'),
-          zelle: 0, // Not in the sheet
-          ezCater: 0, // Not in the sheet
-          relish: 0, // Not in the sheet
-          waiterCom: 0, // Not in the sheet
+          foodja2: parseNumber(row['Foodja2'] || '0'),
+          zelle: parseNumber(row['Zelle'] || '0'),
+          ezCater: parseNumber(row['Ez Cater'] || row['EzCater'] || '0'),
+          ezCater2: parseNumber(row['EzCater2'] || '0'),
+          relish: parseNumber(row['Relish'] || '0'),
+          relish2: parseNumber(row['Relish2'] || '0'),
+          waiterCom: parseNumber(row['waiter.com'] || '0'),
           ccFees: parseNumber(row['CC Fees'] || '0'),
           ddFees: parseNumber(row['DD Fees'] || '0'),
           ueFees: parseNumber(row['UE Fees'] || '0'),
           ghFees: parseNumber(row['GH Fees'] || '0'),
           foodjaFees: parseNumber(row['Foodja Fees'] || '0'),
-          ezCaterFees: 0, // Not in the sheet
-          relishFees: 0, // Not in the sheet
+          ezCaterFees: parseNumber(row['EzCater Fees'] || row['EzCater fees'] || '0'),
+          relishFees: parseNumber(row['Relish Fees'] || row['Relish fees'] || '0'),
           createdBy: 1 // Default to admin user
         }
       });
