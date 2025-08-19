@@ -16,18 +16,33 @@ export default function RevenueGrid({ year, month }: RevenueGridProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [totals, setTotals] = useState({
     cashInReport: 0,
+    card2: 0,
     card: 0,
     dd: 0,
     ue: 0,
     gh: 0,
     cn: 0,
+    dd2: 0,
+    ue2: 0,
+    gh2: 0,
+    cn2: 0,
+    ddFees: 0,
+    ueFees: 0,
+    ghFees: 0,
     catering: 0,
     otherCash: 0,
     foodja: 0,
+    foodja2: 0,
+    foodjaFees: 0,
     zelle: 0,
-    ezCater: 0,
     relish: 0,
+    relish2: 0,
+    relishFees: 0,
+    ezCater: 0,
+    ezCater2: 0,
+    ezCaterFees: 0,
     waiterCom: 0,
+    ccFees: 0,
     totalRevenue: 0
   });
 
@@ -60,25 +75,33 @@ export default function RevenueGrid({ year, month }: RevenueGridProps) {
           month: month,
           year: year,
           cashInReport: item.cashInReport || 0,
+          card2: item.card2 || 0,
           card: item.card || 0,
           dd: item.dd || 0,
           ue: item.ue || 0,
           gh: item.gh || 0,
           cn: item.cn || 0,
-          catering: item.catering || 0,
-          otherCash: item.otherCash || 0,
-          foodja: item.foodja || 0,
-          zelle: item.zelle || 0,
-          ezCater: item.ezCater || 0,
-          relish: item.relish || 0,
-          waiterCom: item.waiterCom || 0,
-          ccFees: item.ccFees || 0,
+          dd2: item.dd2 || 0,
+          ue2: item.ue2 || 0,
+          gh2: item.gh2 || 0,
+          cn2: item.cn2 || 0,
           ddFees: item.ddFees || 0,
           ueFees: item.ueFees || 0,
           ghFees: item.ghFees || 0,
+          catering: item.catering || 0,
+          otherCash: item.otherCash || 0,
+          foodja: item.foodja || 0,
+          foodja2: item.foodja2 || 0,
           foodjaFees: item.foodjaFees || 0,
-          ezCaterFees: item.ezCaterFees || 0,
+          zelle: item.zelle || 0,
+          relish: item.relish || 0,
+          relish2: item.relish2 || 0,
           relishFees: item.relishFees || 0,
+          ezCater: item.ezCater || 0,
+          ezCater2: item.ezCater2 || 0,
+          ezCaterFees: item.ezCaterFees || 0,
+          waiterCom: item.waiterCom || 0,
+          ccFees: item.ccFees || 0,
           isEditing: false,
           isNew: false
         };
@@ -97,38 +120,72 @@ export default function RevenueGrid({ year, month }: RevenueGridProps) {
   const calculateTotals = () => {
     const newTotals = {
       cashInReport: 0,
+      card2: 0,
       card: 0,
       dd: 0,
       ue: 0,
       gh: 0,
       cn: 0,
+      dd2: 0,
+      ue2: 0,
+      gh2: 0,
+      cn2: 0,
+      ddFees: 0,
+      ueFees: 0,
+      ghFees: 0,
       catering: 0,
       otherCash: 0,
       foodja: 0,
+      foodja2: 0,
+      foodjaFees: 0,
       zelle: 0,
-      ezCater: 0,
       relish: 0,
+      relish2: 0,
+      relishFees: 0,
+      ezCater: 0,
+      ezCater2: 0,
+      ezCaterFees: 0,
       waiterCom: 0,
+      ccFees: 0,
       totalRevenue: 0
     };
 
     data.forEach(row => {
       newTotals.cashInReport += row.cashInReport || 0;
+      newTotals.card2 += row.card2 || 0;
       newTotals.card += row.card || 0;
       newTotals.dd += row.dd || 0;
       newTotals.ue += row.ue || 0;
       newTotals.gh += row.gh || 0;
       newTotals.cn += row.cn || 0;
+      newTotals.dd2 += row.dd2 || 0;
+      newTotals.ue2 += row.ue2 || 0;
+      newTotals.gh2 += row.gh2 || 0;
+      newTotals.cn2 += row.cn2 || 0;
+      newTotals.ddFees += row.ddFees || 0;
+      newTotals.ueFees += row.ueFees || 0;
+      newTotals.ghFees += row.ghFees || 0;
       newTotals.catering += row.catering || 0;
       newTotals.otherCash += row.otherCash || 0;
       newTotals.foodja += row.foodja || 0;
+      newTotals.foodja2 += row.foodja2 || 0;
+      newTotals.foodjaFees += row.foodjaFees || 0;
       newTotals.zelle += row.zelle || 0;
-      newTotals.ezCater += row.ezCater || 0;
       newTotals.relish += row.relish || 0;
+      newTotals.relish2 += row.relish2 || 0;
+      newTotals.relishFees += row.relishFees || 0;
+      newTotals.ezCater += row.ezCater || 0;
+      newTotals.ezCater2 += row.ezCater2 || 0;
+      newTotals.ezCaterFees += row.ezCaterFees || 0;
       newTotals.waiterCom += row.waiterCom || 0;
+      newTotals.ccFees += row.ccFees || 0;
     });
 
-    newTotals.totalRevenue = Object.values(newTotals).reduce((sum, val) => sum + val, 0);
+    // Calculate total revenue (sum of all revenue fields)
+    newTotals.totalRevenue = newTotals.cashInReport + newTotals.card + newTotals.dd + newTotals.ue + 
+                            newTotals.gh + newTotals.cn + newTotals.catering + newTotals.otherCash + 
+                            newTotals.foodja + newTotals.zelle + newTotals.ezCater + newTotals.relish + 
+                            newTotals.waiterCom;
     setTotals(newTotals);
   };
 
@@ -144,25 +201,33 @@ export default function RevenueGrid({ year, month }: RevenueGridProps) {
       month: month,
       year: year,
       cashInReport: 0,
+      card2: 0,
       card: 0,
       dd: 0,
       ue: 0,
       gh: 0,
       cn: 0,
-      catering: 0,
-      otherCash: 0,
-      foodja: 0,
-      zelle: 0,
-      ezCater: 0,
-      relish: 0,
-      waiterCom: 0,
-      ccFees: 0,
+      dd2: 0,
+      ue2: 0,
+      gh2: 0,
+      cn2: 0,
       ddFees: 0,
       ueFees: 0,
       ghFees: 0,
+      catering: 0,
+      otherCash: 0,
+      foodja: 0,
+      foodja2: 0,
       foodjaFees: 0,
-      ezCaterFees: 0,
+      zelle: 0,
+      relish: 0,
+      relish2: 0,
       relishFees: 0,
+      ezCater: 0,
+      ezCater2: 0,
+      ezCaterFees: 0,
+      waiterCom: 0,
+      ccFees: 0,
       isNew: true,
       isEditing: true
     };
@@ -196,25 +261,33 @@ export default function RevenueGrid({ year, month }: RevenueGridProps) {
         month: row.month,
         year: row.year,
         cashInReport: row.cashInReport || 0,
+        card2: row.card2 || 0,
         card: row.card || 0,
         dd: row.dd || 0,
         ue: row.ue || 0,
         gh: row.gh || 0,
         cn: row.cn || 0,
-        catering: row.catering || 0,
-        otherCash: row.otherCash || 0,
-        foodja: row.foodja || 0,
-        zelle: row.zelle || 0,
-        ezCater: row.ezCater || 0,
-        relish: row.relish || 0,
-        waiterCom: row.waiterCom || 0,
-        ccFees: row.ccFees || 0,
+        dd2: row.dd2 || 0,
+        ue2: row.ue2 || 0,
+        gh2: row.gh2 || 0,
+        cn2: row.cn2 || 0,
         ddFees: row.ddFees || 0,
         ueFees: row.ueFees || 0,
         ghFees: row.ghFees || 0,
+        catering: row.catering || 0,
+        otherCash: row.otherCash || 0,
+        foodja: row.foodja || 0,
+        foodja2: row.foodja2 || 0,
         foodjaFees: row.foodjaFees || 0,
+        zelle: row.zelle || 0,
+        relish: row.relish || 0,
+        relish2: row.relish2 || 0,
+        relishFees: row.relishFees || 0,
+        ezCater: row.ezCater || 0,
+        ezCater2: row.ezCater2 || 0,
         ezCaterFees: row.ezCaterFees || 0,
-        relishFees: row.relishFees || 0
+        waiterCom: row.waiterCom || 0,
+        ccFees: row.ccFees || 0
       };
       
       if (row.isNew) {
@@ -241,18 +314,33 @@ export default function RevenueGrid({ year, month }: RevenueGridProps) {
   const columns = [
     { key: 'date', label: 'Date', type: 'date', width: '180px' },
     { key: 'cashInReport', label: 'Cash in Report', type: 'number', width: '200px' },
+    { key: 'card2', label: 'Card2', type: 'number', width: '180px' },
     { key: 'card', label: 'Card', type: 'number', width: '180px' },
     { key: 'dd', label: 'DD', type: 'number', width: '180px' },
     { key: 'ue', label: 'UE', type: 'number', width: '180px' },
     { key: 'gh', label: 'GH', type: 'number', width: '180px' },
     { key: 'cn', label: 'CN', type: 'number', width: '180px' },
+    { key: 'dd2', label: 'DD2', type: 'number', width: '180px' },
+    { key: 'ue2', label: 'UE2', type: 'number', width: '180px' },
+    { key: 'gh2', label: 'GH2', type: 'number', width: '180px' },
+    { key: 'cn2', label: 'CN2', type: 'number', width: '180px' },
+    { key: 'ddFees', label: 'DD Fees', type: 'number', width: '180px' },
+    { key: 'ueFees', label: 'UE Fees', type: 'number', width: '180px' },
+    { key: 'ghFees', label: 'GH Fees', type: 'number', width: '180px' },
     { key: 'catering', label: 'Catering', type: 'number', width: '180px' },
     { key: 'otherCash', label: 'Other Cash', type: 'number', width: '180px' },
     { key: 'foodja', label: 'Foodja', type: 'number', width: '180px' },
+    { key: 'foodja2', label: 'Foodja2', type: 'number', width: '180px' },
+    { key: 'foodjaFees', label: 'Foodja Fees', type: 'number', width: '180px' },
     { key: 'zelle', label: 'Zelle', type: 'number', width: '180px' },
-    { key: 'ezCater', label: 'EZ Cater', type: 'number', width: '180px' },
     { key: 'relish', label: 'Relish', type: 'number', width: '180px' },
-    { key: 'waiterCom', label: 'Waiter Com', type: 'number', width: '180px' }
+    { key: 'relish2', label: 'Relish2', type: 'number', width: '180px' },
+    { key: 'relishFees', label: 'Relish Fees', type: 'number', width: '180px' },
+    { key: 'ezCater', label: 'EZ Cater', type: 'number', width: '180px' },
+    { key: 'ezCater2', label: 'EZ Cater2', type: 'number', width: '180px' },
+    { key: 'ezCaterFees', label: 'EZ Cater Fees', type: 'number', width: '180px' },
+    { key: 'waiterCom', label: 'Waiter Com', type: 'number', width: '180px' },
+    { key: 'ccFees', label: 'CC Fees', type: 'number', width: '180px' }
   ];
 
   if (isLoading) {
@@ -361,23 +449,38 @@ export default function RevenueGrid({ year, month }: RevenueGridProps) {
             <tr>
               <td className="px-3 py-3 text-sm font-semibold text-gray-900">TOTALS</td>
               <td className="px-3 py-3 text-sm font-semibold text-gray-900">${totals.cashInReport.toLocaleString()}</td>
+              <td className="px-3 py-3 text-sm font-semibold text-gray-900">${totals.card2.toLocaleString()}</td>
               <td className="px-3 py-3 text-sm font-semibold text-gray-900">${totals.card.toLocaleString()}</td>
               <td className="px-3 py-3 text-sm font-semibold text-gray-900">${totals.dd.toLocaleString()}</td>
               <td className="px-3 py-3 text-sm font-semibold text-gray-900">${totals.ue.toLocaleString()}</td>
               <td className="px-3 py-3 text-sm font-semibold text-gray-900">${totals.gh.toLocaleString()}</td>
               <td className="px-3 py-3 text-sm font-semibold text-gray-900">${totals.cn.toLocaleString()}</td>
+              <td className="px-3 py-3 text-sm font-semibold text-gray-900">${totals.dd2.toLocaleString()}</td>
+              <td className="px-3 py-3 text-sm font-semibold text-gray-900">${totals.ue2.toLocaleString()}</td>
+              <td className="px-3 py-3 text-sm font-semibold text-gray-900">${totals.gh2.toLocaleString()}</td>
+              <td className="px-3 py-3 text-sm font-semibold text-gray-900">${totals.cn2.toLocaleString()}</td>
+              <td className="px-3 py-3 text-sm font-semibold text-gray-900">${totals.ddFees.toLocaleString()}</td>
+              <td className="px-3 py-3 text-sm font-semibold text-gray-900">${totals.ueFees.toLocaleString()}</td>
+              <td className="px-3 py-3 text-sm font-semibold text-gray-900">${totals.ghFees.toLocaleString()}</td>
               <td className="px-3 py-3 text-sm font-semibold text-gray-900">${totals.catering.toLocaleString()}</td>
               <td className="px-3 py-3 text-sm font-semibold text-gray-900">${totals.otherCash.toLocaleString()}</td>
               <td className="px-3 py-3 text-sm font-semibold text-gray-900">${totals.foodja.toLocaleString()}</td>
+              <td className="px-3 py-3 text-sm font-semibold text-gray-900">${totals.foodja2.toLocaleString()}</td>
+              <td className="px-3 py-3 text-sm font-semibold text-gray-900">${totals.foodjaFees.toLocaleString()}</td>
               <td className="px-3 py-3 text-sm font-semibold text-gray-900">${totals.zelle.toLocaleString()}</td>
-              <td className="px-3 py-3 text-sm font-semibold text-gray-900">${totals.ezCater.toLocaleString()}</td>
               <td className="px-3 py-3 text-sm font-semibold text-gray-900">${totals.relish.toLocaleString()}</td>
+              <td className="px-3 py-3 text-sm font-semibold text-gray-900">${totals.relish2.toLocaleString()}</td>
+              <td className="px-3 py-3 text-sm font-semibold text-gray-900">${totals.relishFees.toLocaleString()}</td>
+              <td className="px-3 py-3 text-sm font-semibold text-gray-900">${totals.ezCater.toLocaleString()}</td>
+              <td className="px-3 py-3 text-sm font-semibold text-gray-900">${totals.ezCater2.toLocaleString()}</td>
+              <td className="px-3 py-3 text-sm font-semibold text-gray-900">${totals.ezCaterFees.toLocaleString()}</td>
               <td className="px-3 py-3 text-sm font-semibold text-gray-900">${totals.waiterCom.toLocaleString()}</td>
+              <td className="px-3 py-3 text-sm font-semibold text-gray-900">${totals.ccFees.toLocaleString()}</td>
               <td className="px-3 py-3 text-sm font-semibold text-gray-900"></td>
             </tr>
             <tr className="bg-blue-50">
               <td className="px-3 py-3 text-sm font-bold text-blue-900">TOTAL REVENUE</td>
-              <td colSpan={13} className="px-3 py-3 text-sm font-bold text-blue-900">${totals.totalRevenue.toLocaleString()}</td>
+              <td colSpan={30} className="px-3 py-3 text-sm font-bold text-blue-900">${totals.totalRevenue.toLocaleString()}</td>
               <td className="px-3 py-3"></td>
             </tr>
           </tfoot>
