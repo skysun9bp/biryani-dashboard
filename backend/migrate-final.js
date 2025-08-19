@@ -120,11 +120,11 @@ function parseDate(dateStr) {
   return null;
 }
 
-// Helper function to parse number
+// Helper function to parse number and round to nearest whole number
 function parseNumber(value) {
   if (!value || value.toString().trim() === '') return 0;
   const num = parseFloat(value.toString().replace(/[$,]/g, ''));
-  return isNaN(num) ? 0 : num;
+  return isNaN(num) ? 0 : Math.round(num);
 }
 
 // Helper function to get month abbreviation
@@ -184,7 +184,7 @@ async function migrateRevenueData() {
           ezCater: 0, // Not in the sheet
           relish: 0, // Not in the sheet
           waiterCom: 0, // Not in the sheet
-          ccFees: 0, // Not in the sheet
+          ccFees: parseNumber(row['CC Fees'] || '0'),
           ddFees: parseNumber(row['DD Fees'] || '0'),
           ueFees: parseNumber(row['UE Fees'] || '0'),
           ghFees: parseNumber(row['GH Fees'] || '0'),
