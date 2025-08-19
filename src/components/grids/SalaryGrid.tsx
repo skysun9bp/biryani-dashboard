@@ -167,10 +167,10 @@ export default function SalaryGrid({ year, month }: SalaryGridProps) {
   };
 
   const columns = [
-    { key: 'date', label: 'Date', type: 'date', width: '140px' },
-    { key: 'resourceName', label: 'Employee', type: 'select', width: '180px', options: resourceNames },
-    { key: 'amount', label: 'Amount', type: 'number', width: '140px' },
-    { key: 'actualPaidDate', label: 'Paid Date', type: 'date', width: '140px' }
+    { key: 'date', label: 'Date', type: 'date', width: '180px' },
+    { key: 'resourceName', label: 'Employee', type: 'select', width: '220px', options: resourceNames },
+    { key: 'amount', label: 'Amount', type: 'number', width: '180px' },
+    { key: 'actualPaidDate', label: 'Paid Date', type: 'date', width: '180px' }
   ];
 
   if (isLoading) {
@@ -200,8 +200,8 @@ export default function SalaryGrid({ year, month }: SalaryGridProps) {
       </div>
 
       {/* Grid */}
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
+      <div className="overflow-x-auto" style={{ minWidth: '100%' }}>
+        <table className="w-full divide-y divide-gray-200" style={{ minWidth: 'max-content' }}>
           <thead className="bg-gray-50">
             <tr>
               {columns.map((column) => (

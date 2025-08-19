@@ -239,20 +239,20 @@ export default function RevenueGrid({ year, month }: RevenueGridProps) {
   };
 
   const columns = [
-    { key: 'date', label: 'Date', type: 'date', width: '140px' },
-    { key: 'cashInReport', label: 'Cash in Report', type: 'number', width: '160px' },
-    { key: 'card', label: 'Card', type: 'number', width: '140px' },
-    { key: 'dd', label: 'DD', type: 'number', width: '140px' },
-    { key: 'ue', label: 'UE', type: 'number', width: '140px' },
-    { key: 'gh', label: 'GH', type: 'number', width: '140px' },
-    { key: 'cn', label: 'CN', type: 'number', width: '140px' },
-    { key: 'catering', label: 'Catering', type: 'number', width: '140px' },
-    { key: 'otherCash', label: 'Other Cash', type: 'number', width: '140px' },
-    { key: 'foodja', label: 'Foodja', type: 'number', width: '140px' },
-    { key: 'zelle', label: 'Zelle', type: 'number', width: '140px' },
-    { key: 'ezCater', label: 'EZ Cater', type: 'number', width: '140px' },
-    { key: 'relish', label: 'Relish', type: 'number', width: '140px' },
-    { key: 'waiterCom', label: 'Waiter Com', type: 'number', width: '140px' }
+    { key: 'date', label: 'Date', type: 'date', width: '180px' },
+    { key: 'cashInReport', label: 'Cash in Report', type: 'number', width: '200px' },
+    { key: 'card', label: 'Card', type: 'number', width: '180px' },
+    { key: 'dd', label: 'DD', type: 'number', width: '180px' },
+    { key: 'ue', label: 'UE', type: 'number', width: '180px' },
+    { key: 'gh', label: 'GH', type: 'number', width: '180px' },
+    { key: 'cn', label: 'CN', type: 'number', width: '180px' },
+    { key: 'catering', label: 'Catering', type: 'number', width: '180px' },
+    { key: 'otherCash', label: 'Other Cash', type: 'number', width: '180px' },
+    { key: 'foodja', label: 'Foodja', type: 'number', width: '180px' },
+    { key: 'zelle', label: 'Zelle', type: 'number', width: '180px' },
+    { key: 'ezCater', label: 'EZ Cater', type: 'number', width: '180px' },
+    { key: 'relish', label: 'Relish', type: 'number', width: '180px' },
+    { key: 'waiterCom', label: 'Waiter Com', type: 'number', width: '180px' }
   ];
 
   if (isLoading) {
@@ -282,8 +282,8 @@ export default function RevenueGrid({ year, month }: RevenueGridProps) {
       </div>
 
       {/* Grid */}
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
+      <div className="overflow-x-auto" style={{ minWidth: '100%' }}>
+        <table className="w-full divide-y divide-gray-200" style={{ minWidth: 'max-content' }}>
           <thead className="bg-gray-50">
             <tr>
               {columns.map((column) => (

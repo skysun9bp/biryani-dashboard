@@ -170,11 +170,11 @@ export default function ExpenseGrid({ year, month }: ExpenseGridProps) {
   };
 
   const columns = [
-    { key: 'date', label: 'Date', type: 'date', width: '140px' },
-    { key: 'costType', label: 'Cost Type', type: 'select', width: '180px', options: costTypes },
-    { key: 'expenseType', label: 'Expense Type', type: 'text', width: '180px' },
-    { key: 'itemVendor', label: 'Item/Vendor', type: 'text', width: '250px' },
-    { key: 'amount', label: 'Amount', type: 'number', width: '140px' }
+    { key: 'date', label: 'Date', type: 'date', width: '180px' },
+    { key: 'costType', label: 'Cost Type', type: 'select', width: '220px', options: costTypes },
+    { key: 'expenseType', label: 'Expense Type', type: 'text', width: '220px' },
+    { key: 'itemVendor', label: 'Item/Vendor', type: 'text', width: '300px' },
+    { key: 'amount', label: 'Amount', type: 'number', width: '180px' }
   ];
 
   if (isLoading) {
@@ -204,8 +204,8 @@ export default function ExpenseGrid({ year, month }: ExpenseGridProps) {
       </div>
 
       {/* Grid */}
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
+      <div className="overflow-x-auto" style={{ minWidth: '100%' }}>
+        <table className="w-full divide-y divide-gray-200" style={{ minWidth: 'max-content' }}>
           <thead className="bg-gray-50">
             <tr>
               {columns.map((column) => (
