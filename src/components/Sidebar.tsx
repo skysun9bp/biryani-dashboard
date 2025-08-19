@@ -41,6 +41,12 @@ export default function Sidebar({ activeTab, onTabChange, user, onLogout }: Side
       description: 'Add new entries'
     },
     {
+      name: 'Data Grid',
+      icon: '📋',
+      tab: 'data-grid',
+      description: 'Excel-like data editing'
+    },
+    {
       name: 'Reports',
       icon: '📈',
       tab: 'reports',

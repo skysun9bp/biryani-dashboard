@@ -11,10 +11,11 @@ import { SalaryChart } from './components/SalaryChart';
 import { ExportButton } from './components/ExportButton';
 // Table components will be created later
 import DataEntryPage from './components/DataEntryPage';
+import DataGridPage from './components/DataGridPage';
 import { ReportsPage } from './components/ReportsPage';
 
 
-type TabType = 'dashboard' | 'revenue' | 'expenses' | 'salaries' | 'data-entry' | 'reports';
+type TabType = 'dashboard' | 'revenue' | 'expenses' | 'salaries' | 'data-entry' | 'data-grid' | 'reports';
 
 function AppContent() {
   const { user, isAuthenticated, isLoading, logout, login } = useAuth();
@@ -113,6 +114,8 @@ function AppContent() {
         );
       case 'data-entry':
         return <DataEntryPage />;
+      case 'data-grid':
+        return <DataGridPage />;
       case 'reports':
         return <ReportsPage />;
       default:

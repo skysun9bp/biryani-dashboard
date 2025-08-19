@@ -453,6 +453,8 @@ class ApiService {
     const response = await fetch(`${API_BASE_URL}/health`);
     return handleResponse(response);
   }
+
+
 }
 
 // Export singleton instance
