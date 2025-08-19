@@ -181,11 +181,10 @@ export default function RevenueGrid({ year, month }: RevenueGridProps) {
       newTotals.ccFees += row.ccFees || 0;
     });
 
-    // Calculate total revenue (sum of all revenue fields)
-    newTotals.totalRevenue = newTotals.cashInReport + newTotals.card + newTotals.dd + newTotals.ue + 
-                            newTotals.gh + newTotals.cn + newTotals.catering + newTotals.otherCash + 
-                            newTotals.foodja + newTotals.zelle + newTotals.ezCater + newTotals.relish + 
-                            newTotals.waiterCom;
+    // Calculate total revenue (sum of revenue fields as specified)
+    newTotals.totalRevenue = newTotals.cashInReport + newTotals.card + newTotals.dd + newTotals.ue + newTotals.gh + newTotals.cn + 
+                            newTotals.catering + newTotals.foodja + newTotals.otherCash + newTotals.ezCater + 
+                            newTotals.zelle + newTotals.relish + newTotals.waiterCom;
     setTotals(newTotals);
   };
 
