@@ -135,28 +135,46 @@ export default function ExpenseGrid({ year, month }: ExpenseGridProps) {
 
   const saveRow = async (row: EditableExpenseEntry, index: number) => {
     try {
+      console.log('Saving expense row:', row);
+      
+      // Prepare the data for API
+      const apiData = {
+        date: row.date,
+        month: row.month,
+        year: row.year,
+        costType: row.costType,
+        expenseType: row.expenseType || 'General',
+        itemVendor: row.itemVendor || '',
+        amount: row.amount || 0
+      };
+      
       if (row.isNew) {
-        const result = await apiService.createExpenseEntry(row);
+        console.log('Creating new expense entry:', apiData);
+        const result = await apiService.createExpenseEntry(apiData);
+        console.log('Create result:', result);
         const newData = [...data];
         newData[index] = { ...result.entry, isEditing: false, isNew: false };
         setData(newData);
       } else {
-        const result = await apiService.updateExpenseEntry(row.id!, row);
+        console.log('Updating expense entry:', row.id, apiData);
+        const result = await apiService.updateExpenseEntry(row.id!, apiData);
+        console.log('Update result:', result);
         const newData = [...data];
         newData[index] = { ...result.entry, isEditing: false, isNew: false };
         setData(newData);
       }
     } catch (error) {
-      console.error('Error saving row:', error);
+      console.error('Error saving expense row:', error);
+      alert('Error saving data. Please check console for details.');
     }
   };
 
   const columns = [
-    { key: 'date', label: 'Date', type: 'date', width: '120px' },
-    { key: 'costType', label: 'Cost Type', type: 'select', width: '150px', options: costTypes },
-    { key: 'expenseType', label: 'Expense Type', type: 'text', width: '150px' },
-    { key: 'itemVendor', label: 'Item/Vendor', type: 'text', width: '200px' },
-    { key: 'amount', label: 'Amount', type: 'number', width: '120px' }
+    { key: 'date', label: 'Date', type: 'date', width: '140px' },
+    { key: 'costType', label: 'Cost Type', type: 'select', width: '180px', options: costTypes },
+    { key: 'expenseType', label: 'Expense Type', type: 'text', width: '180px' },
+    { key: 'itemVendor', label: 'Item/Vendor', type: 'text', width: '250px' },
+    { key: 'amount', label: 'Amount', type: 'number', width: '140px' }
   ];
 
   if (isLoading) {

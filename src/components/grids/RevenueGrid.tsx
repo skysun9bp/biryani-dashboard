@@ -188,37 +188,71 @@ export default function RevenueGrid({ year, month }: RevenueGridProps) {
 
   const saveRow = async (row: EditableRevenueEntry, index: number) => {
     try {
+      console.log('Saving revenue row:', row);
+      
+      // Prepare the data for API
+      const apiData = {
+        date: row.date,
+        month: row.month,
+        year: row.year,
+        cashInReport: row.cashInReport || 0,
+        card: row.card || 0,
+        dd: row.dd || 0,
+        ue: row.ue || 0,
+        gh: row.gh || 0,
+        cn: row.cn || 0,
+        catering: row.catering || 0,
+        otherCash: row.otherCash || 0,
+        foodja: row.foodja || 0,
+        zelle: row.zelle || 0,
+        ezCater: row.ezCater || 0,
+        relish: row.relish || 0,
+        waiterCom: row.waiterCom || 0,
+        ccFees: row.ccFees || 0,
+        ddFees: row.ddFees || 0,
+        ueFees: row.ueFees || 0,
+        ghFees: row.ghFees || 0,
+        foodjaFees: row.foodjaFees || 0,
+        ezCaterFees: row.ezCaterFees || 0,
+        relishFees: row.relishFees || 0
+      };
+      
       if (row.isNew) {
-        const result = await apiService.createRevenueEntry(row);
+        console.log('Creating new revenue entry:', apiData);
+        const result = await apiService.createRevenueEntry(apiData);
+        console.log('Create result:', result);
         const newData = [...data];
         newData[index] = { ...result.entry, isEditing: false, isNew: false };
         setData(newData);
       } else {
-        const result = await apiService.updateRevenueEntry(row.id!, row);
+        console.log('Updating revenue entry:', row.id, apiData);
+        const result = await apiService.updateRevenueEntry(row.id!, apiData);
+        console.log('Update result:', result);
         const newData = [...data];
         newData[index] = { ...result.entry, isEditing: false, isNew: false };
         setData(newData);
       }
     } catch (error) {
-      console.error('Error saving row:', error);
+      console.error('Error saving revenue row:', error);
+      alert('Error saving data. Please check console for details.');
     }
   };
 
   const columns = [
-    { key: 'date', label: 'Date', type: 'date', width: '120px' },
-    { key: 'cashInReport', label: 'Cash in Report', type: 'number', width: '140px' },
-    { key: 'card', label: 'Card', type: 'number', width: '100px' },
-    { key: 'dd', label: 'DD', type: 'number', width: '100px' },
-    { key: 'ue', label: 'UE', type: 'number', width: '100px' },
-    { key: 'gh', label: 'GH', type: 'number', width: '100px' },
-    { key: 'cn', label: 'CN', type: 'number', width: '100px' },
-    { key: 'catering', label: 'Catering', type: 'number', width: '120px' },
-    { key: 'otherCash', label: 'Other Cash', type: 'number', width: '120px' },
-    { key: 'foodja', label: 'Foodja', type: 'number', width: '100px' },
-    { key: 'zelle', label: 'Zelle', type: 'number', width: '100px' },
-    { key: 'ezCater', label: 'EZ Cater', type: 'number', width: '120px' },
-    { key: 'relish', label: 'Relish', type: 'number', width: '100px' },
-    { key: 'waiterCom', label: 'Waiter Com', type: 'number', width: '120px' }
+    { key: 'date', label: 'Date', type: 'date', width: '140px' },
+    { key: 'cashInReport', label: 'Cash in Report', type: 'number', width: '160px' },
+    { key: 'card', label: 'Card', type: 'number', width: '140px' },
+    { key: 'dd', label: 'DD', type: 'number', width: '140px' },
+    { key: 'ue', label: 'UE', type: 'number', width: '140px' },
+    { key: 'gh', label: 'GH', type: 'number', width: '140px' },
+    { key: 'cn', label: 'CN', type: 'number', width: '140px' },
+    { key: 'catering', label: 'Catering', type: 'number', width: '140px' },
+    { key: 'otherCash', label: 'Other Cash', type: 'number', width: '140px' },
+    { key: 'foodja', label: 'Foodja', type: 'number', width: '140px' },
+    { key: 'zelle', label: 'Zelle', type: 'number', width: '140px' },
+    { key: 'ezCater', label: 'EZ Cater', type: 'number', width: '140px' },
+    { key: 'relish', label: 'Relish', type: 'number', width: '140px' },
+    { key: 'waiterCom', label: 'Waiter Com', type: 'number', width: '140px' }
   ];
 
   if (isLoading) {

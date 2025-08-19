@@ -146,8 +146,8 @@ function processFinancialData(revenueData, expenseData, salaryData) {
     // Round revenue to nearest dollar
     monthlyData[key].revenue = Math.round(monthlyData[key].revenue);
 
-    // Add fees
-    monthlyData[key].ccFees += (entry.ccFees || 0);
+    // Add fees - calculate CC Fees dynamically as Card - Card2
+    monthlyData[key].ccFees += Math.max(0, (entry.card || 0) - (entry.card2 || 0));
     monthlyData[key].ddFees += (entry.ddFees || 0);
     monthlyData[key].ueFees += (entry.ueFees || 0);
     monthlyData[key].ghFees += (entry.ghFees || 0);

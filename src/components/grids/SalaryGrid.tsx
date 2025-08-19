@@ -133,27 +133,44 @@ export default function SalaryGrid({ year, month }: SalaryGridProps) {
 
   const saveRow = async (row: EditableSalaryEntry, index: number) => {
     try {
+      console.log('Saving salary row:', row);
+      
+      // Prepare the data for API
+      const apiData = {
+        date: row.date,
+        month: row.month,
+        year: row.year,
+        resourceName: row.resourceName,
+        amount: row.amount || 0,
+        actualPaidDate: row.actualPaidDate
+      };
+      
       if (row.isNew) {
-        const result = await apiService.createSalaryEntry(row);
+        console.log('Creating new salary entry:', apiData);
+        const result = await apiService.createSalaryEntry(apiData);
+        console.log('Create result:', result);
         const newData = [...data];
         newData[index] = { ...result.entry, isEditing: false, isNew: false };
         setData(newData);
       } else {
-        const result = await apiService.updateSalaryEntry(row.id!, row);
+        console.log('Updating salary entry:', row.id, apiData);
+        const result = await apiService.updateSalaryEntry(row.id!, apiData);
+        console.log('Update result:', result);
         const newData = [...data];
         newData[index] = { ...result.entry, isEditing: false, isNew: false };
         setData(newData);
       }
     } catch (error) {
-      console.error('Error saving row:', error);
+      console.error('Error saving salary row:', error);
+      alert('Error saving data. Please check console for details.');
     }
   };
 
   const columns = [
-    { key: 'date', label: 'Date', type: 'date', width: '120px' },
-    { key: 'resourceName', label: 'Employee', type: 'select', width: '150px', options: resourceNames },
-    { key: 'amount', label: 'Amount', type: 'number', width: '120px' },
-    { key: 'actualPaidDate', label: 'Paid Date', type: 'date', width: '120px' }
+    { key: 'date', label: 'Date', type: 'date', width: '140px' },
+    { key: 'resourceName', label: 'Employee', type: 'select', width: '180px', options: resourceNames },
+    { key: 'amount', label: 'Amount', type: 'number', width: '140px' },
+    { key: 'actualPaidDate', label: 'Paid Date', type: 'date', width: '140px' }
   ];
 
   if (isLoading) {
