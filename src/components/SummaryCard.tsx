@@ -5,9 +5,9 @@ import { apiService } from "../services/api";
 import { DateFilter } from "./DateFilter";
 
 interface SummaryCardProps {
-  selectedYear: number;
+  selectedYear: string;
   selectedMonth: string;
-  onYearChange: (year: number) => void;
+  onYearChange: (year: string) => void;
   onMonthChange: (month: string) => void;
 }
 
@@ -24,7 +24,7 @@ export function SummaryCard({ selectedYear, selectedMonth, onYearChange, onMonth
   useEffect(() => {
     async function loadData() {
       try {
-        const response = await apiService.getFinancialData(selectedYear, selectedMonth);
+        const response = await apiService.getFinancialData(selectedYear || undefined, selectedMonth);
         const { financialData, expenseBreakdown, salaryBreakdown, feeBreakdown } = response;
 
         const currentMonthData = financialData.find((item: any) =>
@@ -101,9 +101,9 @@ export function SummaryCard({ selectedYear, selectedMonth, onYearChange, onMonth
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-900">Financial Summary</h2>
         <DateFilter
-          selectedYear={selectedYear.toString()}
+          selectedYear={selectedYear}
           selectedMonth={selectedMonth}
-          onYearChange={(year) => onYearChange(parseInt(year))}
+          onYearChange={onYearChange}
           onMonthChange={onMonthChange}
         />
       </div>

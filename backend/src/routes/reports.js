@@ -11,10 +11,10 @@ router.get('/financial-data', async (req, res) => {
     
     // Build where clause
     const whereClause = {};
-    if (year) {
+    if (year && year !== '') {
       whereClause.year = parseInt(year);
     }
-    if (month) {
+    if (month && month !== '') {
       whereClause.month = month;
     }
 

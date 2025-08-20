@@ -432,13 +432,13 @@ class ApiService {
   }
 
   // Financial Data for Reports
-  async getFinancialData(year: number, month?: string): Promise<any> {
+  async getFinancialData(year?: number | string, month?: string): Promise<any> {
     const token = getAuthToken();
     if (!token) throw new Error('No authentication token');
 
     const queryParams = new URLSearchParams();
-    queryParams.append('year', year.toString());
-    if (month) queryParams.append('month', month);
+    if (year && year !== '') queryParams.append('year', year.toString());
+    if (month && month !== '') queryParams.append('month', month);
 
     const response = await fetch(`${API_BASE_URL}/reports/financial-data?${queryParams}`, {
       headers: {

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { apiService, RevenueEntry } from '../../services/api';
 
 interface RevenueGridProps {
-  year: number;
+  year: string;
   month: string;
 }
 
@@ -60,7 +60,10 @@ export default function RevenueGrid({ year, month }: RevenueGridProps) {
       console.log('Loading revenue data for:', year, month);
       
       // Fetch actual revenue entries from the database
-      const response = await apiService.getRevenueEntries({ year, month });
+      const response = await apiService.getRevenueEntries({ 
+        year: year ? parseInt(year) : undefined, 
+        month 
+      });
       console.log('Revenue API response:', response);
       
       const revenueEntries = response?.entries || [];
@@ -73,7 +76,7 @@ export default function RevenueGrid({ year, month }: RevenueGridProps) {
           id: item.id,
           date: item.date ? new Date(item.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
           month: month,
-          year: year,
+          year: year ? parseInt(year) : new Date().getFullYear(),
           cashInReport: item.cashInReport || 0,
           card2: item.card2 || 0,
           card: item.card || 0,

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { apiService, SalaryEntry } from '../../services/api';
 
 interface SalaryGridProps {
-  year: number;
+  year: string;
   month: string;
 }
 
@@ -35,7 +35,10 @@ export default function SalaryGrid({ year, month }: SalaryGridProps) {
       console.log('Loading salary data for:', year, month);
       
       // Fetch actual salary entries from the database
-      const response = await apiService.getSalaryEntries({ year, month });
+      const response = await apiService.getSalaryEntries({ 
+        year: year ? parseInt(year) : undefined, 
+        month 
+      });
       console.log('Salary API response:', response);
       
       const salaryEntries = response?.entries || [];
@@ -48,7 +51,7 @@ export default function SalaryGrid({ year, month }: SalaryGridProps) {
           id: item.id,
           date: item.date ? new Date(item.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
           month: month,
-          year: year,
+          year: year ? parseInt(year) : new Date().getFullYear(),
           resourceName: item.resourceName || 'Employee',
           amount: item.amount || 0,
           actualPaidDate: item.actualPaidDate ? new Date(item.actualPaidDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { apiService, ExpenseEntry } from '../../services/api';
 
 interface ExpenseGridProps {
-  year: number;
+  year: string;
   month: string;
 }
 
@@ -35,7 +35,10 @@ export default function ExpenseGrid({ year, month }: ExpenseGridProps) {
       console.log('Loading expense data for:', year, month);
       
       // Fetch actual expense entries from the database
-      const response = await apiService.getExpenseEntries({ year, month });
+      const response = await apiService.getExpenseEntries({ 
+        year: year ? parseInt(year) : undefined, 
+        month 
+      });
       console.log('Expense API response:', response);
       
       const expenseEntries = response?.entries || [];
@@ -48,7 +51,7 @@ export default function ExpenseGrid({ year, month }: ExpenseGridProps) {
           id: item.id,
           date: item.date ? new Date(item.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
           month: month,
-          year: year,
+          year: year ? parseInt(year) : new Date().getFullYear(),
           costType: item.costType || 'Food costs',
           expenseType: item.expenseType || 'General',
           itemVendor: item.itemVendor || '',

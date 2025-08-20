@@ -18,7 +18,7 @@ export function SalaryChart() {
   useEffect(() => {
     async function loadData() {
       try {
-        const response = await apiService.getFinancialData(parseInt(selectedYear), selectedMonthFilter);
+        const response = await apiService.getFinancialData(selectedYear || undefined, selectedMonthFilter);
         const { salaryBreakdown } = response;
         
         // Group salaries by employee

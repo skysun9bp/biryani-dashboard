@@ -40,7 +40,7 @@ export function ExpenseChart() {
   useEffect(() => {
     async function loadData() {
       try {
-        const response = await apiService.getFinancialData(parseInt(selectedYear), selectedMonth);
+        const response = await apiService.getFinancialData(selectedYear || undefined, selectedMonth);
         const { expenseBreakdown, salaryBreakdown } = response;
         
         // Group expenses by category

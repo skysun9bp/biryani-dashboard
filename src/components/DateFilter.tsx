@@ -46,6 +46,7 @@ export function DateFilter({
           onChange={(e) => onYearChange(e.target.value)}
           className="px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
         >
+          <option value="">All Years</option>
           {years.map((year) => (
             <option key={year} value={year}>
               {year}

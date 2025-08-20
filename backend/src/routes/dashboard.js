@@ -11,8 +11,8 @@ router.get('/summary', authenticateToken, async (req, res) => {
     const { year, month } = req.query;
     
     const where = {};
-    if (year) where.year = parseInt(year);
-    if (month) where.month = month;
+    if (year && year !== '') where.year = parseInt(year);
+    if (month && month !== '') where.month = month;
 
     // Get revenue data
     const revenueData = await prisma.revenueEntry.findMany({

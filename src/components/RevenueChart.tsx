@@ -18,7 +18,7 @@ export function RevenueChart() {
   useEffect(() => {
     async function loadData() {
       try {
-        const response = await apiService.getFinancialData(parseInt(selectedYear), selectedMonth);
+        const response = await apiService.getFinancialData(selectedYear || undefined, selectedMonth);
         const { financialData } = response;
         
         // Process API data for charts

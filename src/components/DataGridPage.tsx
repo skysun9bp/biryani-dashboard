@@ -8,7 +8,7 @@ type GridType = 'revenue' | 'expense' | 'salary';
 
 export default function DataGridPage() {
   const [activeGrid, setActiveGrid] = useState<GridType>('revenue');
-  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+  const [selectedYear, setSelectedYear] = useState<string>('');
   const [selectedMonth, setSelectedMonth] = useState<string>(new Date().toLocaleString('default', { month: 'short' }));
   const [isLoading, setIsLoading] = useState(false);
 
@@ -17,7 +17,7 @@ export default function DataGridPage() {
     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
   ];
 
-  const years = Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i);
+  const years = Array.from({ length: 10 }, (_, i) => (new Date().getFullYear() - i).toString());
 
   const gridTabs = [
     { id: 'revenue', name: 'Revenue Data', icon: '💰', color: 'blue' },
@@ -89,9 +89,10 @@ export default function DataGridPage() {
               <label className="text-sm font-medium text-gray-700">Year:</label>
               <select
                 value={selectedYear}
-                onChange={(e) => setSelectedYear(Number(e.target.value))}
+                onChange={(e) => setSelectedYear(e.target.value)}
                 className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
+                <option value="">All Years</option>
                 {years.map(year => (
                   <option key={year} value={year}>{year}</option>
                 ))}
@@ -111,7 +112,7 @@ export default function DataGridPage() {
             </div>
             <div className="flex-1"></div>
             <div className="text-sm text-gray-500">
-              Showing data for {selectedMonth} {selectedYear}
+              Showing data for {selectedMonth} {selectedYear || 'All Years'}
             </div>
           </div>
         </div>

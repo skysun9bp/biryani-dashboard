@@ -20,7 +20,7 @@ type TabType = 'dashboard' | 'revenue' | 'expenses' | 'salaries' | 'data-entry' 
 function AppContent() {
   const { user, isAuthenticated, isLoading, logout, login } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
-  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+  const [selectedYear, setSelectedYear] = useState<string>('');
   const [selectedMonth, setSelectedMonth] = useState<string>(''); // Empty string means all months for revenue analytics
   const [summaryMonth, setSummaryMonth] = useState<string>(new Date().toLocaleString('default', { month: 'short' })); // Current month for summary
 

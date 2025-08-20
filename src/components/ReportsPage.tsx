@@ -24,7 +24,7 @@ interface SalaryBreakdown {
 }
 
 export function ReportsPage() {
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [selectedYear, setSelectedYear] = useState<string>('');
   const [selectedMonth, setSelectedMonth] = useState('');
   const [reportType, setReportType] = useState<'trends' | 'breakdown' | 'comparison'>('trends');
   const [financialData, setFinancialData] = useState<FinancialData[]>([]);
@@ -32,7 +32,7 @@ export function ReportsPage() {
   const [salaryBreakdown, setSalaryBreakdown] = useState<SalaryBreakdown[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
+  const years = Array.from({ length: 5 }, (_, i) => (new Date().getFullYear() - i).toString());
   const months = [
     'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
@@ -46,7 +46,7 @@ export function ReportsPage() {
     setLoading(true);
     try {
       // Use apiService to get real data
-      const data = await apiService.getFinancialData(selectedYear, selectedMonth);
+      const data = await apiService.getFinancialData(selectedYear || undefined, selectedMonth);
       
       setFinancialData(data.financialData || []);
       setExpenseBreakdown(data.expenseBreakdown || []);
@@ -123,9 +123,10 @@ export function ReportsPage() {
             <label className="block text-sm font-medium text-gray-700 mb-1">Year</label>
             <select
               value={selectedYear}
-              onChange={(e) => setSelectedYear(Number(e.target.value))}
+              onChange={(e) => setSelectedYear(e.target.value)}
               className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
+              <option value="">All Years</option>
               {years.map(year => (
                 <option key={year} value={year}>{year}</option>
               ))}
