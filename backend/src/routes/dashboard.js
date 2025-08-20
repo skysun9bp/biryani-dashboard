@@ -61,9 +61,11 @@ router.get('/summary', authenticateToken, async (req, res) => {
              (item.ezCater || 0) + (item.relish || 0) + (item.waiterCom || 0);
     }, 0);
 
+    // Calculate expenses (including all expense entries)
     const totalExpenses = expenseData.reduce((sum, item) => sum + (item.amount || 0), 0);
     const totalSalaries = salaryData.reduce((sum, item) => sum + (item.amount || 0), 0);
     
+    // Calculate CC fees from revenue entries only
     const totalCCFees = revenueData.reduce((sum, item) => sum + (item.ccFees || 0), 0);
     const totalCommissionFees = revenueData.reduce((sum, item) => {
       return sum + (item.ddFees || 0) + (item.ueFees || 0) + (item.ghFees || 0) + 
