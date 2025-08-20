@@ -44,7 +44,11 @@ router.get('/summary', authenticateToken, async (req, res) => {
     // Get expense data
     const expenseData = await prisma.expenseEntry.findMany({
       where,
-      select: { amount: true }
+      select: { 
+        amount: true,
+        costType: true,
+        expenseType: true
+      }
     });
 
     // Get salary data
@@ -61,8 +65,10 @@ router.get('/summary', authenticateToken, async (req, res) => {
              (item.ezCater || 0) + (item.relish || 0) + (item.waiterCom || 0);
     }, 0);
 
-    // Calculate expenses (including all expense entries)
-    const totalExpenses = expenseData.reduce((sum, item) => sum + (item.amount || 0), 0);
+    // Calculate expenses (excluding CC fees since they're shown separately)
+    const totalExpenses = expenseData
+      .filter(item => !(item.costType === 'CC Fees' && item.expenseType === 'Credit Card Processing'))
+      .reduce((sum, item) => sum + (item.amount || 0), 0);
     const totalSalaries = salaryData.reduce((sum, item) => sum + (item.amount || 0), 0);
     
     // Calculate CC fees from revenue entries only
