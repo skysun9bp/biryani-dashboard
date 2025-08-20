@@ -14,43 +14,50 @@ export default function Sidebar({ activeTab, onTabChange, user, onLogout }: Side
       name: 'Dashboard',
       icon: '📊',
       tab: 'dashboard',
-      description: 'Overview and analytics'
+      description: 'Overview and analytics',
+      adminOnly: false
     },
     {
       name: 'Revenue',
       icon: '💰',
       tab: 'revenue',
-      description: 'Revenue tracking and analysis'
+      description: 'Revenue tracking and analysis',
+      adminOnly: false
     },
     {
       name: 'Expenses',
       icon: '💸',
       tab: 'expenses',
-      description: 'Expense management'
+      description: 'Expense management',
+      adminOnly: false
     },
     {
       name: 'Salaries',
       icon: '👥',
       tab: 'salaries',
-      description: 'Employee salary tracking'
+      description: 'Employee salary tracking',
+      adminOnly: false
     },
     {
       name: 'Data Entry',
       icon: '✏️',
       tab: 'data-entry',
-      description: 'Add new entries'
+      description: 'Add new entries',
+      adminOnly: true
     },
     {
       name: 'Data Grid',
       icon: '📋',
       tab: 'data-grid',
-      description: 'Excel-like data editing'
+      description: 'Excel-like data editing',
+      adminOnly: true
     },
     {
       name: 'Reports',
       icon: '📈',
       tab: 'reports',
-      description: 'Advanced analytics & trends'
+      description: 'Advanced analytics & trends',
+      adminOnly: false
     }
   ];
 
@@ -95,7 +102,9 @@ export default function Sidebar({ activeTab, onTabChange, user, onLogout }: Side
 
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-2">
-        {navigationItems.map((item) => (
+        {navigationItems
+          .filter(item => !item.adminOnly || user?.role === 'ADMIN')
+          .map((item) => (
           <button
             key={item.tab}
             onClick={() => onTabChange(item.tab)}

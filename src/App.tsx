@@ -113,8 +113,30 @@ function AppContent() {
           </div>
         );
       case 'data-entry':
+        if (user?.role !== 'ADMIN') {
+          return (
+            <div className="flex items-center justify-center h-64">
+              <div className="text-center">
+                <div className="text-6xl mb-4">🚫</div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h2>
+                <p className="text-gray-600">You don't have permission to access Data Entry.</p>
+              </div>
+            </div>
+          );
+        }
         return <DataEntryPage />;
       case 'data-grid':
+        if (user?.role !== 'ADMIN') {
+          return (
+            <div className="flex items-center justify-center h-64">
+              <div className="text-center">
+                <div className="text-6xl mb-4">🚫</div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h2>
+                <p className="text-gray-600">You don't have permission to access Data Grid.</p>
+              </div>
+            </div>
+          );
+        }
         return <DataGridPage />;
       case 'reports':
         return <ReportsPage />;
