@@ -170,8 +170,13 @@ function processFinancialData(revenueData, expenseData, salaryData) {
     data.relishFees = Math.round(data.relishFees);
   });
 
-  // Process expense data
+  // Process expense data (excluding CC fees since they're shown separately)
   expenseData.forEach(entry => {
+    // Skip CC fees entries
+    if (entry.costType === 'CC Fees' && entry.expenseType === 'Credit Card Processing') {
+      return;
+    }
+    
     const key = `${entry.month}-${entry.year}`;
     if (!monthlyData[key]) {
       monthlyData[key] = {
@@ -253,6 +258,11 @@ function processExpenseBreakdown(expenseData) {
   const breakdown = {};
 
   expenseData.forEach(entry => {
+    // Skip CC fees entries since they're shown separately
+    if (entry.costType === 'CC Fees' && entry.expenseType === 'Credit Card Processing') {
+      return;
+    }
+    
     const category = entry.costType || 'Other';
     if (!breakdown[category]) {
       breakdown[category] = 0;
