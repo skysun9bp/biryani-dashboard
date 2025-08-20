@@ -19,16 +19,25 @@ export function ExpenseDetails({ costType, onBack }: ExpenseDetailsProps) {
         const currentMonth = currentDate.toLocaleString('default', { month: 'short' });
         const currentYear = currentDate.getFullYear();
         
-        const response = await apiService.getFinancialData(currentYear, currentMonth);
-        const { expenseBreakdown } = response;
+        // Get actual expense entries for the selected cost type
+        const response = await apiService.getExpenseEntries({ 
+          year: currentYear, 
+          month: currentMonth,
+          costType: costType 
+        });
         
-        // Filter expenses for the selected cost type
-        const filteredExpenses = expenseBreakdown.filter((item: any) => 
-          item.category === costType
-        );
+        const expenseEntries = response?.entries || [];
         
-        setExpenses(filteredExpenses);
-        const total = filteredExpenses.reduce((sum: number, item: any) => sum + (item.amount || 0), 0);
+        // Convert to the format expected by the component
+        const formattedExpenses = expenseEntries.map((entry: any) => ({
+          "Date": new Date(entry.date).toLocaleDateString(),
+          "Expense Type": entry.expenseType || "General",
+          "Item (Vendor)": entry.itemVendor || "",
+          "Amount": entry.amount?.toString() || "0"
+        }));
+        
+        setExpenses(formattedExpenses);
+        const total = formattedExpenses.reduce((sum: number, item: any) => sum + parseFloat(item["Amount"] || "0"), 0);
         setTotalAmount(total);
         setLoading(false);
       } catch (error) {

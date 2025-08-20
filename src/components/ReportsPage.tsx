@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
+import { apiService } from '../services/api';
 
 interface FinancialData {
   revenue: number;
@@ -44,19 +45,18 @@ export function ReportsPage() {
   const loadReportData = async () => {
     setLoading(true);
     try {
-      // Simulate API calls - replace with actual API endpoints
-      const response = await fetch(`http://localhost:3001/api/reports/financial-data?year=${selectedYear}&month=${selectedMonth}`);
-      const data = await response.json();
+      // Use apiService to get real data
+      const data = await apiService.getFinancialData(selectedYear, selectedMonth);
       
       setFinancialData(data.financialData || []);
       setExpenseBreakdown(data.expenseBreakdown || []);
       setSalaryBreakdown(data.salaryBreakdown || []);
     } catch (error) {
       console.error('Error loading report data:', error);
-      // Fallback to mock data for now
-      setFinancialData(generateMockFinancialData());
-      setExpenseBreakdown(generateMockExpenseBreakdown());
-      setSalaryBreakdown(generateMockSalaryBreakdown());
+      // Show error instead of falling back to mock data
+      setFinancialData([]);
+      setExpenseBreakdown([]);
+      setSalaryBreakdown([]);
     }
     setLoading(false);
   };
