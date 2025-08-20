@@ -27,15 +27,38 @@ export function SummaryCard({ selectedYear, selectedMonth, onYearChange, onMonth
         const response = await apiService.getFinancialData(selectedYear || undefined, selectedMonth);
         const { financialData, expenseBreakdown, salaryBreakdown, feeBreakdown } = response;
 
-        const currentMonthData = financialData.find((item: any) =>
-          item.month === selectedMonth && item.year === selectedYear
-        ) || financialData[0];
+        // Calculate totals from all data when "All Years" or "All Months" is selected
+        let totalRevenue = 0;
+        let totalExpenses = 0;
+        let totalSalaries = 0;
+        let totalNetProfit = 0;
 
-        if (currentMonthData) {
-          setRevenue(currentMonthData.revenue || 0);
-          setExpenses(currentMonthData.expenses || 0);
-          setSalaries(currentMonthData.salaries || 0);
-          setNetProfit(currentMonthData.netProfit || 0);
+        if (selectedYear === '' || selectedMonth === '') {
+          // Aggregate all data when "All Years" or "All Months" is selected
+          financialData.forEach((item: any) => {
+            totalRevenue += item.revenue || 0;
+            totalExpenses += item.expenses || 0;
+            totalSalaries += item.salaries || 0;
+            totalNetProfit += item.netProfit || 0;
+          });
+        } else {
+          // Find specific month/year data
+          const currentMonthData = financialData.find((item: any) =>
+            item.month === selectedMonth && item.year === parseInt(selectedYear)
+          ) || financialData[0];
+
+          if (currentMonthData) {
+            totalRevenue = currentMonthData.revenue || 0;
+            totalExpenses = currentMonthData.expenses || 0;
+            totalSalaries = currentMonthData.salaries || 0;
+            totalNetProfit = currentMonthData.netProfit || 0;
+          }
+        }
+
+        setRevenue(totalRevenue);
+        setExpenses(totalExpenses);
+        setSalaries(totalSalaries);
+        setNetProfit(totalNetProfit);
 
           // Calculate fees from the new feeBreakdown
           const ccFeesTotal = feeBreakdown
@@ -55,7 +78,6 @@ export function SummaryCard({ selectedYear, selectedMonth, onYearChange, onMonth
             )
             .reduce((sum: number, item: any) => sum + item.amount, 0);
           setCommissionFees(commissionTotal);
-        }
 
         setLoading(false);
         setLastUpdated(new Date().toLocaleString());
