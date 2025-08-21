@@ -22,10 +22,12 @@ export function ExpenseDetails({ costType, onBack, selectedYear, selectedMonth }
         const month = selectedMonth || new Date().toLocaleString('default', { month: 'short' });
         
         // Get actual expense entries for the selected cost type
+        // For "All Years" and "All Months", we need to fetch all entries without pagination limits
         const response = await apiService.getExpenseEntries({ 
           year: selectedYear ? parseInt(selectedYear) : undefined, 
           month: selectedMonth || undefined,
-          costType: costType 
+          costType: costType,
+          limit: 10000 // Set a high limit to get all entries
         });
         
         const expenseEntries = response?.entries || [];
@@ -35,11 +37,22 @@ export function ExpenseDetails({ costType, onBack, selectedYear, selectedMonth }
           "Date": new Date(entry.date).toLocaleDateString(),
           "Expense Type": entry.expenseType || "General",
           "Item (Vendor)": entry.itemVendor || "",
-          "Amount": entry.amount?.toString() || "0"
+          "Amount": entry.amount?.toString() || "0",
+          "OriginalDate": new Date(entry.date) // Keep original date for sorting
         }));
         
-        setExpenses(formattedExpenses);
-        const total = formattedExpenses.reduce((sum: number, item: any) => sum + parseFloat(item["Amount"] || "0"), 0);
+        // Sort expenses based on selection
+        let sortedExpenses = [...formattedExpenses];
+        if (selectedYear === '' || selectedMonth === '') {
+          // For "All Years" or "All Months", sort by amount descending
+          sortedExpenses.sort((a, b) => parseFloat(b["Amount"] || "0") - parseFloat(a["Amount"] || "0"));
+        } else {
+          // For specific month/year, sort by date descending
+          sortedExpenses.sort((a, b) => b["OriginalDate"].getTime() - a["OriginalDate"].getTime());
+        }
+        
+        setExpenses(sortedExpenses);
+        const total = sortedExpenses.reduce((sum: number, item: any) => sum + parseFloat(item["Amount"] || "0"), 0);
         setTotalAmount(total);
         setLoading(false);
       } catch (error) {
@@ -104,7 +117,16 @@ export function ExpenseDetails({ costType, onBack, selectedYear, selectedMonth }
             <span>Back to Cost Types</span>
           </button>
           <h3 className="text-2xl font-bold text-gray-900">{costType} Expenses</h3>
-          <p className="text-gray-600 mt-1">Detailed breakdown for current month</p>
+          <p className="text-gray-600 mt-1">
+            {selectedYear === '' && selectedMonth === '' 
+              ? 'Detailed breakdown for all years and months' 
+              : selectedYear === '' 
+                ? `Detailed breakdown for all months of ${selectedMonth}` 
+                : selectedMonth === '' 
+                  ? `Detailed breakdown for all months of ${selectedYear}` 
+                  : `Detailed breakdown for ${selectedMonth} ${selectedYear}`
+            }
+          </p>
         </div>
         <div className="text-right">
           <div className="text-sm text-gray-500">Total Amount</div>
