@@ -174,6 +174,8 @@ export default function ExpenseGrid({ year, month }: ExpenseGridProps) {
 
   const columns = [
     { key: 'date', label: 'Date', type: 'date', width: '180px' },
+    { key: 'month', label: 'Month', type: 'text', width: '120px' },
+    { key: 'year', label: 'Year', type: 'number', width: '100px' },
     { key: 'costType', label: 'Cost Type', type: 'select', width: '220px', options: costTypes },
     { key: 'expenseType', label: 'Expense Type', type: 'text', width: '220px' },
     { key: 'itemVendor', label: 'Item/Vendor', type: 'text', width: '300px' },

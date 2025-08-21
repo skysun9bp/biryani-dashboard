@@ -315,6 +315,8 @@ export default function RevenueGrid({ year, month }: RevenueGridProps) {
 
   const columns = [
     { key: 'date', label: 'Date', type: 'date', width: '180px' },
+    { key: 'month', label: 'Month', type: 'text', width: '120px' },
+    { key: 'year', label: 'Year', type: 'number', width: '100px' },
     { key: 'cashInReport', label: 'Cash in Report', type: 'number', width: '200px' },
     { key: 'card2', label: 'Card2', type: 'number', width: '180px' },
     { key: 'card', label: 'Card', type: 'number', width: '180px' },

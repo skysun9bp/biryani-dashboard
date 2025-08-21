@@ -171,6 +171,8 @@ export default function SalaryGrid({ year, month }: SalaryGridProps) {
 
   const columns = [
     { key: 'date', label: 'Date', type: 'date', width: '180px' },
+    { key: 'month', label: 'Month', type: 'text', width: '120px' },
+    { key: 'year', label: 'Year', type: 'number', width: '100px' },
     { key: 'resourceName', label: 'Employee', type: 'select', width: '220px', options: resourceNames },
     { key: 'amount', label: 'Amount', type: 'number', width: '180px' },
     { key: 'actualPaidDate', label: 'Paid Date', type: 'date', width: '180px' }
