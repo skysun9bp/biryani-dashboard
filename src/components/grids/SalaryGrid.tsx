@@ -50,8 +50,8 @@ export default function SalaryGrid({ year, month }: SalaryGridProps) {
         return {
           id: item.id,
           date: item.date ? new Date(item.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-          month: month,
-          year: year ? parseInt(year) : new Date().getFullYear(),
+          month: item.month || month,
+          year: item.year || (year ? parseInt(year) : new Date().getFullYear()),
           resourceName: item.resourceName || 'Employee',
           amount: item.amount || 0,
           actualPaidDate: item.actualPaidDate ? new Date(item.actualPaidDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
@@ -172,7 +172,7 @@ export default function SalaryGrid({ year, month }: SalaryGridProps) {
   const columns = [
     { key: 'date', label: 'Date', type: 'date', width: '180px' },
     { key: 'month', label: 'Month', type: 'text', width: '120px' },
-    { key: 'year', label: 'Year', type: 'number', width: '100px' },
+    { key: 'year', label: 'Year', type: 'text', width: '100px' },
     { key: 'resourceName', label: 'Employee', type: 'select', width: '220px', options: resourceNames },
     { key: 'amount', label: 'Amount', type: 'number', width: '180px' },
     { key: 'actualPaidDate', label: 'Paid Date', type: 'date', width: '180px' }

@@ -75,8 +75,8 @@ export default function RevenueGrid({ year, month }: RevenueGridProps) {
         return {
           id: item.id,
           date: item.date ? new Date(item.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-          month: month,
-          year: year ? parseInt(year) : new Date().getFullYear(),
+          month: item.month || month,
+          year: item.year || (year ? parseInt(year) : new Date().getFullYear()),
           cashInReport: item.cashInReport || 0,
           card2: item.card2 || 0,
           card: item.card || 0,
@@ -316,7 +316,7 @@ export default function RevenueGrid({ year, month }: RevenueGridProps) {
   const columns = [
     { key: 'date', label: 'Date', type: 'date', width: '180px' },
     { key: 'month', label: 'Month', type: 'text', width: '120px' },
-    { key: 'year', label: 'Year', type: 'number', width: '100px' },
+    { key: 'year', label: 'Year', type: 'text', width: '100px' },
     { key: 'cashInReport', label: 'Cash in Report', type: 'number', width: '200px' },
     { key: 'card2', label: 'Card2', type: 'number', width: '180px' },
     { key: 'card', label: 'Card', type: 'number', width: '180px' },
