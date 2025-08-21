@@ -4,9 +4,11 @@ import { apiService } from "../services/api";
 interface ExpenseDetailsProps {
   costType: string;
   onBack: () => void;
+  selectedYear?: string;
+  selectedMonth?: string;
 }
 
-export function ExpenseDetails({ costType, onBack }: ExpenseDetailsProps) {
+export function ExpenseDetails({ costType, onBack, selectedYear, selectedMonth }: ExpenseDetailsProps) {
   const [expenses, setExpenses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalAmount, setTotalAmount] = useState(0);
@@ -15,14 +17,14 @@ export function ExpenseDetails({ costType, onBack }: ExpenseDetailsProps) {
   useEffect(() => {
     async function loadExpenseDetails() {
       try {
-        const currentDate = new Date();
-        const currentMonth = currentDate.toLocaleString('default', { month: 'short' });
-        const currentYear = currentDate.getFullYear();
+        // Use selected year/month if provided, otherwise use current
+        const year = selectedYear ? parseInt(selectedYear) : new Date().getFullYear();
+        const month = selectedMonth || new Date().toLocaleString('default', { month: 'short' });
         
         // Get actual expense entries for the selected cost type
         const response = await apiService.getExpenseEntries({ 
-          year: currentYear, 
-          month: currentMonth,
+          year: selectedYear ? parseInt(selectedYear) : undefined, 
+          month: selectedMonth || undefined,
           costType: costType 
         });
         
@@ -47,7 +49,7 @@ export function ExpenseDetails({ costType, onBack }: ExpenseDetailsProps) {
     }
     
     loadExpenseDetails();
-  }, [costType]);
+  }, [costType, selectedYear, selectedMonth]);
 
   const groupExpenses = () => {
     const grouped: { [key: string]: any[] } = {};

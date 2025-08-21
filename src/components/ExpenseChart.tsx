@@ -158,7 +158,12 @@ export function ExpenseChart() {
 
   if (showDetails && selectedCostType) {
     return (
-      <ExpenseDetails costType={selectedCostType} onBack={handleBackToCostType} />
+      <ExpenseDetails 
+        costType={selectedCostType} 
+        onBack={handleBackToCostType}
+        selectedYear={selectedYear}
+        selectedMonth={selectedMonth}
+      />
     );
   }
 
