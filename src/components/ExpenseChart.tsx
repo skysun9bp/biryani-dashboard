@@ -6,24 +6,7 @@ import { DateFilter } from "./DateFilter";
 
 const COLORS = ['#8B5CF6', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#EC4899', '#8B5A2B', '#6B7280', '#059669', '#DC2626', '#7C3AED', '#1D4ED8', '#047857', '#D97706', '#B91C1C'];
 
-// Expected expense categories for validation
-const EXPECTED_EXPENSE_CATEGORIES = [
-  'Maintenance',
-  'Marketing',
-  'Automobile',
-  'Equipment',
-  'Insurance',
-  'Sales Tax & CPA',
-  'Payroll Other taxes',
-  'Rent',
-  'Utilities',
-  'Misc',
-  'Bank Fees',
-  'LLC Fees',
-  'Travel',
-  'Food costs',
-  'Salaries' // Added separately from salaries sheet
-];
+
 
 export function ExpenseChart() {
   const [data, setData] = useState<any[]>([]);
@@ -33,9 +16,8 @@ export function ExpenseChart() {
   const [comparisonData, setComparisonData] = useState<any>(null);
   const [showDetails, setShowDetails] = useState(false);
   const [selectedCostType, setSelectedCostType] = useState<string>("");
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
-  const [selectedMonth, setSelectedMonth] = useState(''); // Empty string means all months of current year
-  const [missingCategories, setMissingCategories] = useState<string[]>([]);
+  const [selectedYear, setSelectedYear] = useState('');
+  const [selectedMonth, setSelectedMonth] = useState(''); // Empty string means all months
 
   useEffect(() => {
     async function loadData() {
@@ -57,24 +39,7 @@ export function ExpenseChart() {
           }
         });
 
-        // Add salaries as a separate category
-        const totalSalaries = salaryBreakdown.reduce((sum: number, item: any) => {
-          return sum + (item.amount || 0);
-        }, 0);
-        
-        if (totalSalaries > 0) {
-          expenseByCategory["Salaries"] = totalSalaries;
-        }
-
-        // Check for missing expected categories
-        const foundCategories = Object.keys(expenseByCategory);
-        const missing = EXPECTED_EXPENSE_CATEGORIES.filter(category => 
-          !foundCategories.some(found => 
-            found.toLowerCase().includes(category.toLowerCase()) ||
-            category.toLowerCase().includes(found.toLowerCase())
-          )
-        );
-        setMissingCategories(missing);
+        // Note: Salaries are excluded from expense analytics since they're shown separately in the salaries section
         
         // Convert to array and sort by descending amount
         const chartData = Object.entries(expenseByCategory)
@@ -173,7 +138,7 @@ export function ExpenseChart() {
       <div className="flex justify-between items-start">
         <div>
           <h3 className="text-2xl font-bold text-gray-900">Expense Analytics</h3>
-          <p className="text-gray-600 mt-1">Expense breakdown and analysis (including salaries)</p>
+          <p className="text-gray-600 mt-1">Expense breakdown and analysis (excluding salaries)</p>
         </div>
         <div className="text-right">
           <div className="text-sm text-gray-500">Total Expenses</div>
@@ -195,25 +160,7 @@ export function ExpenseChart() {
         </div>
       </div>
 
-      {/* Missing Categories Warning */}
-      {missingCategories.length > 0 && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <div className="flex items-center space-x-2 mb-2">
-            <span className="text-yellow-600">⚠️</span>
-            <span className="text-sm font-medium text-yellow-800">Missing Expense Categories</span>
-          </div>
-          <p className="text-sm text-yellow-700 mb-2">
-            The following expected expense categories were not found in the data:
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {missingCategories.map((category, index) => (
-              <span key={index} className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded">
-                {category}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
+
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 gap-4">
@@ -234,7 +181,7 @@ export function ExpenseChart() {
             <span className="text-sm font-medium text-orange-800">Categories</span>
           </div>
           <div className="text-xl font-bold text-orange-900">{data.length}</div>
-          <div className="text-xs text-orange-700 mt-1">Cost types + Salaries</div>
+          <div className="text-xs text-orange-700 mt-1">Cost types only</div>
         </div>
       </div>
 
@@ -326,23 +273,7 @@ export function ExpenseChart() {
         </div>
       </div>
 
-      {/* Expected Categories Info */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <div className="flex items-center space-x-2 mb-2">
-          <span className="text-blue-600">ℹ️</span>
-          <span className="text-sm font-medium text-blue-800">Expected Expense Categories</span>
-        </div>
-        <p className="text-sm text-blue-700 mb-2">
-          The dashboard is configured to track these expense categories:
-        </p>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
-          {EXPECTED_EXPENSE_CATEGORIES.map((category, index) => (
-            <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
-              {category}
-            </span>
-          ))}
-        </div>
-      </div>
+
     </div>
   );
 }

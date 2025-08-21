@@ -12,8 +12,8 @@ export function RevenueChart() {
   const [netIncome, setNetIncome] = useState(0);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedDateDetails, setSelectedDateDetails] = useState<any>(null);
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
-  const [selectedMonth, setSelectedMonth] = useState(''); // Empty string means all months of current year
+  const [selectedYear, setSelectedYear] = useState('');
+  const [selectedMonth, setSelectedMonth] = useState(''); // Empty string means all months
 
   useEffect(() => {
     async function loadData() {

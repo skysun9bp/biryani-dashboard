@@ -9,7 +9,7 @@ type GridType = 'revenue' | 'expense' | 'salary';
 export default function DataGridPage() {
   const [activeGrid, setActiveGrid] = useState<GridType>('revenue');
   const [selectedYear, setSelectedYear] = useState<string>('');
-  const [selectedMonth, setSelectedMonth] = useState<string>(new Date().toLocaleString('default', { month: 'short' }));
+  const [selectedMonth, setSelectedMonth] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
 
   const months = [
