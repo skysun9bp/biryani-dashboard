@@ -41,6 +41,10 @@ function AppContent() {
     }} />;
   }
 
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab as TabType);
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
@@ -53,25 +57,10 @@ function AppContent() {
               onMonthChange={setSummaryMonth}
             />
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <RevenueChart 
-                selectedYear={selectedYear}
-                selectedMonth={selectedMonth}
-                onYearChange={setSelectedYear}
-                onMonthChange={setSelectedMonth}
-              />
-              <ExpenseChart 
-                selectedYear={selectedYear}
-                selectedMonth={selectedMonth}
-                onYearChange={setSelectedYear}
-                onMonthChange={setSelectedMonth}
-              />
-            </div>
-            <SalaryChart 
-              selectedYear={selectedYear}
-              selectedMonth={selectedMonth}
-              onYearChange={setSelectedYear}
-              onMonthChange={setSelectedMonth}
-            />
+                          <RevenueChart />
+            <ExpenseChart />
+          </div>
+          <SalaryChart />
             {/* Tables will be added in the reports section */}
             <ExportButton />
           </div>
@@ -79,36 +68,21 @@ function AppContent() {
       case 'revenue':
         return (
           <div className="space-y-6">
-            <RevenueChart 
-              selectedYear={selectedYear}
-              selectedMonth={selectedMonth}
-              onYearChange={setSelectedYear}
-              onMonthChange={setSelectedMonth}
-            />
+            <RevenueChart />
             {/* Revenue table will be added in reports section */}
           </div>
         );
       case 'expenses':
         return (
           <div className="space-y-6">
-            <ExpenseChart 
-              selectedYear={selectedYear}
-              selectedMonth={selectedMonth}
-              onYearChange={setSelectedYear}
-              onMonthChange={setSelectedMonth}
-            />
+            <ExpenseChart />
             {/* Expense table will be added in reports section */}
           </div>
         );
       case 'salaries':
         return (
           <div className="space-y-6">
-            <SalaryChart 
-              selectedYear={selectedYear}
-              selectedMonth={selectedMonth}
-              onYearChange={setSelectedYear}
-              onMonthChange={setSelectedMonth}
-            />
+            <SalaryChart />
             {/* Salary table will be added in reports section */}
           </div>
         );
@@ -149,7 +123,7 @@ function AppContent() {
     <div className="flex h-screen bg-gray-100">
       <Sidebar 
         activeTab={activeTab} 
-        onTabChange={setActiveTab}
+        onTabChange={handleTabChange}
         user={user}
         onLogout={logout}
       />
@@ -167,9 +141,5 @@ function AppContent() {
 }
 
 export default function App() {
-  return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
-  );
+  return <AppContent />;
 }
