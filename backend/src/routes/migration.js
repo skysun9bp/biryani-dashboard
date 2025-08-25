@@ -43,6 +43,45 @@ router.post('/trigger', async (req, res) => {
   }
 });
 
+// SQLite to PostgreSQL migration endpoint
+router.post('/sqlite-to-postgresql', async (req, res) => {
+  try {
+    console.log('🔄 SQLite to PostgreSQL migration triggered...');
+    
+    // Run the railway migration script
+    const migrationScript = path.join(__dirname, '..', '..', 'scripts', 'railway-migration.js');
+    
+    exec(`node "${migrationScript}"`, (error, stdout, stderr) => {
+      if (error) {
+        console.error('❌ Migration failed:', error);
+        return res.status(500).json({
+          success: false,
+          error: 'Migration failed',
+          details: error.message,
+          stderr: stderr
+        });
+      }
+      
+      console.log('✅ Migration completed successfully');
+      console.log('📊 Migration output:', stdout);
+      
+      res.json({
+        success: true,
+        message: 'SQLite to PostgreSQL migration completed successfully',
+        output: stdout
+      });
+    });
+    
+  } catch (error) {
+    console.error('❌ Error triggering migration:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to trigger migration',
+      details: error.message
+    });
+  }
+});
+
 // Export database endpoint
 router.get('/export-database', async (req, res) => {
   try {
@@ -91,7 +130,8 @@ router.get('/status', (req, res) => {
     availableScripts: [
       'migrate:final',
       'migrate:improved', 
-      'migrate:clean'
+      'migrate:clean',
+      'sqlite-to-postgresql'
     ]
   });
 });
