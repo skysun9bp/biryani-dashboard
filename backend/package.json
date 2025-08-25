@@ -34,7 +34,8 @@
     "googleapis": "^156.0.0",
     "helmet": "^7.2.0",
     "jsonwebtoken": "^9.0.2",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "sqlite3": "^5.1.7"
   },
   "devDependencies": {
     "@types/node": "^20.10.5",
