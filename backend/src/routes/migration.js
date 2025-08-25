@@ -187,6 +187,47 @@ router.get('/export-database', async (req, res) => {
   }
 });
 
+// Upload database endpoint
+router.post('/upload-database', async (req, res) => {
+  try {
+    console.log('📤 Uploading database file...');
+    
+    // Get the uploaded file data
+    const databaseBuffer = req.body;
+    
+    if (!databaseBuffer || databaseBuffer.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'No database file provided'
+      });
+    }
+    
+    console.log(`📊 Received database file: ${databaseBuffer.length} bytes`);
+    
+    // Write the database file
+    const fs = require('fs');
+    const dbPath = './dev.db';
+    
+    fs.writeFileSync(dbPath, databaseBuffer);
+    
+    console.log('✅ Database file saved successfully');
+    
+    res.json({
+      success: true,
+      message: 'Database uploaded successfully',
+      size: databaseBuffer.length
+    });
+    
+  } catch (error) {
+    console.error('❌ Error uploading database:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to upload database',
+      details: error.message
+    });
+  }
+});
+
 // Check SQLite database endpoint
 router.get('/check-sqlite', async (req, res) => {
   try {
