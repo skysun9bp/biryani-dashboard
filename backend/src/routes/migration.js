@@ -732,6 +732,43 @@ router.post('/create-admin-direct', async (req, res) => {
   }
 });
 
+// Run Prisma migrations
+router.post('/run-migrations', async (req, res) => {
+  try {
+    console.log('🚀 Running Prisma migrations...');
+    
+    // Run prisma migrate deploy
+    exec('npx prisma migrate deploy', { timeout: 60000 }, (error, stdout, stderr) => {
+      if (error) {
+        console.error('❌ Migration failed:', error);
+        return res.status(500).json({
+          success: false,
+          error: 'Migration failed',
+          details: error.message,
+          stderr: stderr
+        });
+      }
+      
+      console.log('✅ Migrations completed successfully');
+      console.log('📊 Migration output:', stdout);
+      
+      res.json({
+        success: true,
+        message: 'Migrations completed successfully',
+        output: stdout
+      });
+    });
+    
+  } catch (error) {
+    console.error('❌ Error running migrations:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to run migrations',
+      details: error.message
+    });
+  }
+});
+
 // Get migration status
 router.get('/status', (req, res) => {
   res.json({
