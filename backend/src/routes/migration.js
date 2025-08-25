@@ -48,8 +48,8 @@ router.post('/sqlite-to-postgresql', async (req, res) => {
   try {
     console.log('🔄 SQLite to PostgreSQL migration triggered...');
     
-    // Run the railway migration script
-    const migrationScript = path.join(__dirname, '..', '..', 'scripts', 'railway-migration.js');
+    // Run the railway migration v2 script
+    const migrationScript = path.join(__dirname, '..', '..', 'scripts', 'railway-migration-v2.js');
     
     exec(`node "${migrationScript}"`, (error, stdout, stderr) => {
       if (error) {
