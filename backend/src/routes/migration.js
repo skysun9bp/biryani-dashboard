@@ -576,6 +576,45 @@ router.get('/test-users', async (req, res) => {
   }
 });
 
+// Create admin endpoint
+router.post('/create-admin', async (req, res) => {
+  try {
+    console.log('👤 Creating admin user...');
+    
+    // Run the create admin script
+    const adminScript = path.join(__dirname, '..', '..', 'scripts', 'create-admin.js');
+    
+    exec(`node "${adminScript}"`, (error, stdout, stderr) => {
+      if (error) {
+        console.error('❌ Admin creation failed:', error);
+        return res.status(500).json({
+          success: false,
+          error: 'Admin creation failed',
+          details: error.message,
+          stderr: stderr
+        });
+      }
+      
+      console.log('✅ Admin creation completed successfully');
+      console.log('📊 Admin creation output:', stdout);
+      
+      res.json({
+        success: true,
+        message: 'Admin user created successfully',
+        output: stdout
+      });
+    });
+    
+  } catch (error) {
+    console.error('❌ Error creating admin:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to create admin',
+      details: error.message
+    });
+  }
+});
+
 // Get migration status
 router.get('/status', (req, res) => {
   res.json({
