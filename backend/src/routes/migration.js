@@ -654,6 +654,84 @@ router.post('/direct-admin', async (req, res) => {
   }
 });
 
+// Direct admin creation in route handler
+router.post('/create-admin-direct', async (req, res) => {
+  try {
+    console.log('🚀 Creating admin user directly in route handler...');
+    
+    // Initialize Prisma client
+    const { PrismaClient } = require('@prisma/client');
+    const prisma = new PrismaClient();
+    
+    console.log('👤 Creating admin user...');
+    
+    // Create admin user with exact credentials from export
+    const adminUser = await prisma.user.upsert({
+      where: { email: 'admin@biryani.com' },
+      update: {
+        password: '$2b$12$ZshE.L5k6bThK.ZKmzwdue3I..3CG/zmkpJZTkdPYN6v6sEuRR7tO',
+        name: 'Admin User',
+        role: 'ADMIN'
+      },
+      create: {
+        id: 1,
+        email: 'admin@biryani.com',
+        password: '$2b$12$ZshE.L5k6bThK.ZKmzwdue3I..3CG/zmkpJZTkdPYN6v6sEuRR7tO',
+        name: 'Admin User',
+        role: 'ADMIN',
+        createdAt: new Date('2025-08-15T23:31:54.071Z'),
+        updatedAt: new Date('2025-08-15T23:31:54.071Z')
+      }
+    });
+    
+    console.log('✅ Admin user created/updated successfully!');
+    console.log('📧 Email:', adminUser.email);
+    console.log('👤 Name:', adminUser.name);
+    console.log('🔑 Role:', adminUser.role);
+    
+    // Verify by querying
+    console.log('🔍 Verifying admin user...');
+    const verifyUser = await prisma.user.findUnique({
+      where: { email: 'admin@biryani.com' }
+    });
+    
+    let verificationMessage = '';
+    if (verifyUser) {
+      verificationMessage = '✅ Admin user verified in database!';
+      console.log(verificationMessage);
+    } else {
+      verificationMessage = '❌ Admin user not found after creation!';
+      console.log(verificationMessage);
+    }
+    
+    const totalUsers = await prisma.user.count();
+    console.log('📊 Total users in database:', totalUsers);
+    
+    await prisma.$disconnect();
+    console.log('🎉 Direct admin creation completed successfully!');
+    
+    res.json({
+      success: true,
+      message: 'Admin user created successfully',
+      adminUser: {
+        email: adminUser.email,
+        name: adminUser.name,
+        role: adminUser.role
+      },
+      verification: verificationMessage,
+      totalUsers: totalUsers
+    });
+    
+  } catch (error) {
+    console.error('❌ Error creating admin:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to create admin',
+      details: error.message
+    });
+  }
+});
+
 // Get migration status
 router.get('/status', (req, res) => {
   res.json({
