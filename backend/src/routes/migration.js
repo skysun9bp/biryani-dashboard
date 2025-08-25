@@ -192,7 +192,7 @@ router.post('/upload-database', async (req, res) => {
   try {
     console.log('📤 Uploading database file...');
     
-    // Get the uploaded file data
+    // Get the raw body data
     const databaseBuffer = req.body;
     
     if (!databaseBuffer || databaseBuffer.length === 0) {
@@ -204,18 +204,28 @@ router.post('/upload-database', async (req, res) => {
     
     console.log(`📊 Received database file: ${databaseBuffer.length} bytes`);
     
+    // Convert to Buffer if needed
+    let buffer;
+    if (Buffer.isBuffer(databaseBuffer)) {
+      buffer = databaseBuffer;
+    } else if (typeof databaseBuffer === 'string') {
+      buffer = Buffer.from(databaseBuffer, 'binary');
+    } else {
+      buffer = Buffer.from(databaseBuffer);
+    }
+    
     // Write the database file
     const fs = require('fs');
     const dbPath = './dev.db';
     
-    fs.writeFileSync(dbPath, databaseBuffer);
+    fs.writeFileSync(dbPath, buffer);
     
     console.log('✅ Database file saved successfully');
     
     res.json({
       success: true,
       message: 'Database uploaded successfully',
-      size: databaseBuffer.length
+      size: buffer.length
     });
     
   } catch (error) {
