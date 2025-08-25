@@ -461,6 +461,45 @@ router.post('/import-data', async (req, res) => {
   }
 });
 
+// Simple Railway import endpoint
+router.post('/railway-import', async (req, res) => {
+  try {
+    console.log('🚀 Running Railway import...');
+    
+    // Run the railway import script
+    const importScript = path.join(__dirname, '..', '..', 'scripts', 'railway-import.js');
+    
+    exec(`node "${importScript}"`, (error, stdout, stderr) => {
+      if (error) {
+        console.error('❌ Import failed:', error);
+        return res.status(500).json({
+          success: false,
+          error: 'Import failed',
+          details: error.message,
+          stderr: stderr
+        });
+      }
+      
+      console.log('✅ Import completed successfully');
+      console.log('📊 Import output:', stdout);
+      
+      res.json({
+        success: true,
+        message: 'Data imported successfully to Railway PostgreSQL',
+        output: stdout
+      });
+    });
+    
+  } catch (error) {
+    console.error('❌ Error running import:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to run import',
+      details: error.message
+    });
+  }
+});
+
 // Get migration status
 router.get('/status', (req, res) => {
   res.json({
