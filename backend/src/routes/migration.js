@@ -316,6 +316,151 @@ router.get('/find-databases', async (req, res) => {
   }
 });
 
+// Import data endpoint
+router.post('/import-data', async (req, res) => {
+  try {
+    console.log('📥 Importing data to Railway PostgreSQL...');
+    
+    const importData = req.body;
+    
+    if (!importData || !importData.users || !importData.revenueEntries || !importData.expenseEntries || !importData.salaryEntries) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid import data format'
+      });
+    }
+    
+    console.log(`📊 Importing: ${importData.users.length} users, ${importData.revenueEntries.length} revenue, ${importData.expenseEntries.length} expenses, ${importData.salaryEntries.length} salaries`);
+    
+    // Initialize Prisma client for PostgreSQL
+    const { PrismaClient } = require('@prisma/client');
+    const postgresPrisma = new PrismaClient();
+    
+    // Import Users
+    console.log('👥 Importing users...');
+    for (const user of importData.users) {
+      await postgresPrisma.user.upsert({
+        where: { email: user.email },
+        update: {},
+        create: {
+          id: user.id,
+          email: user.email,
+          password: user.password,
+          name: user.name,
+          role: user.role,
+          createdAt: new Date(user.createdAt),
+          updatedAt: new Date(user.updatedAt)
+        }
+      });
+    }
+    console.log(`✅ Imported ${importData.users.length} users`);
+
+    // Import Revenue Entries
+    console.log('💰 Importing revenue entries...');
+    for (const entry of importData.revenueEntries) {
+      await postgresPrisma.revenueEntry.create({
+        data: {
+          id: entry.id,
+          date: new Date(entry.date),
+          month: entry.month,
+          year: entry.year,
+          cashInReport: entry.cashInReport,
+          card2: entry.card2,
+          card: entry.card,
+          dd: entry.dd,
+          ue: entry.ue,
+          gh: entry.gh,
+          cn: entry.cn,
+          dd2: entry.dd2,
+          ue2: entry.ue2,
+          gh2: entry.gh2,
+          cn2: entry.cn2,
+          ddFees: entry.ddFees,
+          ueFees: entry.ueFees,
+          ghFees: entry.ghFees,
+          catering: entry.catering,
+          otherCash: entry.otherCash,
+          foodja: entry.foodja,
+          foodja2: entry.foodja2,
+          foodjaFees: entry.foodjaFees,
+          zelle: entry.zelle,
+          relish: entry.relish,
+          relish2: entry.relish2,
+          relishFees: entry.relishFees,
+          ezCater: entry.ezCater,
+          ezCater2: entry.ezCater2,
+          ezCaterFees: entry.ezCaterFees,
+          waiterCom: entry.waiterCom,
+          ccFees: entry.ccFees,
+          createdAt: new Date(entry.createdAt),
+          updatedAt: new Date(entry.updatedAt),
+          createdBy: entry.createdBy
+        }
+      });
+    }
+    console.log(`✅ Imported ${importData.revenueEntries.length} revenue entries`);
+
+    // Import Expense Entries
+    console.log('💸 Importing expense entries...');
+    for (const entry of importData.expenseEntries) {
+      await postgresPrisma.expenseEntry.create({
+        data: {
+          id: entry.id,
+          date: new Date(entry.date),
+          month: entry.month,
+          year: entry.year,
+          costType: entry.costType,
+          expenseType: entry.expenseType,
+          itemVendor: entry.itemVendor,
+          amount: entry.amount,
+          createdAt: new Date(entry.createdAt),
+          updatedAt: new Date(entry.updatedAt),
+          createdBy: entry.createdBy
+        }
+      });
+    }
+    console.log(`✅ Imported ${importData.expenseEntries.length} expense entries`);
+
+    // Import Salary Entries
+    console.log('👥 Importing salary entries...');
+    for (const entry of importData.salaryEntries) {
+      await postgresPrisma.salaryEntry.create({
+        data: {
+          id: entry.id,
+          date: new Date(entry.date),
+          month: entry.month,
+          year: entry.year,
+          resourceName: entry.resourceName,
+          amount: entry.amount,
+          actualPaidDate: entry.actualPaidDate ? new Date(entry.actualPaidDate) : null,
+          createdAt: new Date(entry.createdAt),
+          updatedAt: new Date(entry.updatedAt),
+          createdBy: entry.createdBy
+        }
+      });
+    }
+    console.log(`✅ Imported ${importData.salaryEntries.length} salary entries`);
+
+    await postgresPrisma.$disconnect();
+    
+    console.log('🎉 Data import completed successfully!');
+    
+    res.json({
+      success: true,
+      message: 'Data imported successfully to Railway PostgreSQL',
+      summary: importData.summary
+    });
+    
+  } catch (error) {
+    console.error('❌ Error importing data:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to import data',
+      details: error.message
+    });
+  }
+});
+
 // Get migration status
 router.get('/status', (req, res) => {
   res.json({

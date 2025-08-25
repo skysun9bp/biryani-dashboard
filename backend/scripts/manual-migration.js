@@ -9,7 +9,7 @@ async function manualMigration() {
   try {
     // Step 1: Connect to SQLite database directly
     console.log('📖 Reading from SQLite database...');
-    const sqliteDb = new sqlite3.Database('./dev.db', (err) => {
+    const sqliteDb = new sqlite3.Database('./prisma/dev.db', (err) => {
       if (err) {
         console.error('❌ Error connecting to SQLite database:', err.message);
         throw err;
