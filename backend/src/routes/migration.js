@@ -615,6 +615,45 @@ router.post('/create-admin', async (req, res) => {
   }
 });
 
+// Direct admin endpoint
+router.post('/direct-admin', async (req, res) => {
+  try {
+    console.log('🚀 Running direct admin creation...');
+    
+    // Run the direct admin script
+    const adminScript = path.join(__dirname, '..', '..', 'scripts', 'direct-admin.js');
+    
+    exec(`node "${adminScript}"`, { timeout: 30000 }, (error, stdout, stderr) => {
+      if (error) {
+        console.error('❌ Direct admin creation failed:', error);
+        return res.status(500).json({
+          success: false,
+          error: 'Direct admin creation failed',
+          details: error.message,
+          stderr: stderr
+        });
+      }
+      
+      console.log('✅ Direct admin creation completed successfully');
+      console.log('📊 Direct admin creation output:', stdout);
+      
+      res.json({
+        success: true,
+        message: 'Direct admin creation completed successfully',
+        output: stdout
+      });
+    });
+    
+  } catch (error) {
+    console.error('❌ Error running direct admin creation:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to run direct admin creation',
+      details: error.message
+    });
+  }
+});
+
 // Get migration status
 router.get('/status', (req, res) => {
   res.json({
