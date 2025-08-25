@@ -539,6 +539,43 @@ router.post('/simple-import', async (req, res) => {
   }
 });
 
+// Test users endpoint
+router.get('/test-users', async (req, res) => {
+  try {
+    console.log('🔍 Testing users in database...');
+    
+    // Initialize Prisma client
+    const { PrismaClient } = require('@prisma/client');
+    const prisma = new PrismaClient();
+    
+    // Query users
+    const users = await prisma.user.findMany();
+    
+    await prisma.$disconnect();
+    
+    console.log(`📊 Found ${users.length} users in database`);
+    
+    res.json({
+      success: true,
+      message: `Found ${users.length} users in database`,
+      users: users.map(user => ({
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role
+      }))
+    });
+    
+  } catch (error) {
+    console.error('❌ Error testing users:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to test users',
+      details: error.message
+    });
+  }
+});
+
 // Get migration status
 router.get('/status', (req, res) => {
   res.json({
