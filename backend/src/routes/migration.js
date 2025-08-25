@@ -769,6 +769,60 @@ router.post('/run-migrations', async (req, res) => {
   }
 });
 
+// Generate and run initial migration
+router.post('/generate-migration', async (req, res) => {
+  try {
+    console.log('🚀 Generating initial migration...');
+    
+    // Generate initial migration
+    exec('npx prisma migrate dev --name init --create-only', { timeout: 60000 }, (error, stdout, stderr) => {
+      if (error) {
+        console.error('❌ Migration generation failed:', error);
+        return res.status(500).json({
+          success: false,
+          error: 'Migration generation failed',
+          details: error.message,
+          stderr: stderr
+        });
+      }
+      
+      console.log('✅ Migration generated successfully');
+      console.log('📊 Generation output:', stdout);
+      
+      // Now deploy the migration
+      exec('npx prisma migrate deploy', { timeout: 60000 }, (deployError, deployStdout, deployStderr) => {
+        if (deployError) {
+          console.error('❌ Migration deployment failed:', deployError);
+          return res.status(500).json({
+            success: false,
+            error: 'Migration deployment failed',
+            details: deployError.message,
+            stderr: deployStderr
+          });
+        }
+        
+        console.log('✅ Migration deployed successfully');
+        console.log('📊 Deployment output:', deployStdout);
+        
+        res.json({
+          success: true,
+          message: 'Migration generated and deployed successfully',
+          generation: stdout,
+          deployment: deployStdout
+        });
+      });
+    });
+    
+  } catch (error) {
+    console.error('❌ Error generating migration:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to generate migration',
+      details: error.message
+    });
+  }
+});
+
 // Get migration status
 router.get('/status', (req, res) => {
   res.json({
