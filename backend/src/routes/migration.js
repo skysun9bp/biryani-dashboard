@@ -187,6 +187,45 @@ router.get('/export-database', async (req, res) => {
   }
 });
 
+// Check SQLite database endpoint
+router.get('/check-sqlite', async (req, res) => {
+  try {
+    console.log('🔍 Checking SQLite database...');
+    
+    // Run the check script
+    const checkScript = path.join(__dirname, '..', '..', 'scripts', 'check-sqlite.js');
+    
+    exec(`node "${checkScript}"`, (error, stdout, stderr) => {
+      if (error) {
+        console.error('❌ Check failed:', error);
+        return res.status(500).json({
+          success: false,
+          error: 'Check failed',
+          details: error.message,
+          stderr: stderr
+        });
+      }
+      
+      console.log('✅ Check completed');
+      console.log('📊 Check output:', stdout);
+      
+      res.json({
+        success: true,
+        message: 'SQLite database check completed',
+        output: stdout
+      });
+    });
+    
+  } catch (error) {
+    console.error('❌ Error checking SQLite:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to check SQLite',
+      details: error.message
+    });
+  }
+});
+
 // Get migration status
 router.get('/status', (req, res) => {
   res.json({
@@ -197,7 +236,8 @@ router.get('/status', (req, res) => {
       'migrate:improved', 
       'migrate:clean',
       'sqlite-to-postgresql',
-      'export-data'
+      'export-data',
+      'check-sqlite'
     ]
   });
 });
