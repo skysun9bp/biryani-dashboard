@@ -226,6 +226,45 @@ router.get('/check-sqlite', async (req, res) => {
   }
 });
 
+// Find database files endpoint
+router.get('/find-databases', async (req, res) => {
+  try {
+    console.log('🔍 Searching for database files...');
+    
+    // Run the find databases script
+    const findScript = path.join(__dirname, '..', '..', 'scripts', 'find-databases.js');
+    
+    exec(`node "${findScript}"`, (error, stdout, stderr) => {
+      if (error) {
+        console.error('❌ Search failed:', error);
+        return res.status(500).json({
+          success: false,
+          error: 'Search failed',
+          details: error.message,
+          stderr: stderr
+        });
+      }
+      
+      console.log('✅ Search completed');
+      console.log('📊 Search output:', stdout);
+      
+      res.json({
+        success: true,
+        message: 'Database search completed',
+        output: stdout
+      });
+    });
+    
+  } catch (error) {
+    console.error('❌ Error searching for databases:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to search for databases',
+      details: error.message
+    });
+  }
+});
+
 // Get migration status
 router.get('/status', (req, res) => {
   res.json({
